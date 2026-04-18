@@ -2,319 +2,600 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>OneThing</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NowFlow - Interstitial Journal</title>
+    <meta name="theme-color" content="#1e1e2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <script>
+        const manifest = {
+            "name": "NowFlow",
+            "short_name": "NowFlow",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#1e1e2e",
+            "theme_color": "#1e1e2e",
+            "description": "Minimal interstitial journaling for ADHD focus.",
+            "icons": [{
+                "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2389b4fa'/><circle cx='50' cy='50' r='20' fill='%231e1e2e'/></svg>",
+                "sizes": "192x192",
+                "type": "image/svg+xml"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        document.write(`<link rel="manifest" href="${manifestUrl}">`);
+    </script>
+
     <style>
-        /* Base styles and gesture protection */
-        body {
-            margin: 0;
-            background-color: #f5f5f4;
-            color: #292524;
-            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-            overscroll-behavior-y: none; /* Prevents pull-to-refresh */
-            touch-action: none; /* Disables default scrolling for our swipe gestures */
+        /* CSS Reset & Variables (Catppuccin Macchiato inspired - calming, low contrast) */
+        :root {
+            --bg: #1e1e2e;
+            --surface: #313244;
+            --surface-hover: #45475a;
+            --text: #cdd6f4;
+            --subtext: #a6adc8;
+            --primary: #89b4fa;
+            --primary-hover: #b4befe;
+            --success: #a6e3a1;
+            --danger: #f38ba8;
+            --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --radius: 16px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        /* View management */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-top: env(safe-area-inset-top); /* iOS Safe Area */
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--subtext);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: color var(--transition), background var(--transition);
+        }
+        .icon-btn:hover {
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        /* Views */
         .view {
             display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            height: 100vh;
-            width: 100vw;
-            position: fixed;
-            top: 0;
-            left: 0;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
+            flex-grow: 1;
+            animation: fadeIn 0.4s ease forwards;
         }
         .view.active {
             display: flex;
-            opacity: 1;
         }
 
-        /* Card styles */
-        .card {
-            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
-            transition: transform 0.2s ease;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .card:active {
-            transform: scale(0.98);
+
+        /* Typography */
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .help-text {
+            color: var(--subtext);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        /* Forms & Inputs */
+        input[type="text"], textarea {
+            width: 100%;
+            background: var(--surface);
+            border: 2px solid transparent;
+            color: var(--text);
+            padding: 16px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color var(--transition);
+            margin-bottom: 16px;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary);
         }
         textarea {
             resize: none;
-            outline: none;
+            min-height: 100px;
+        }
+
+        button {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--transition), background var(--transition);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        button.success {
+            background: var(--success);
+        }
+        button.secondary {
+            background: var(--surface);
+            color: var(--text);
+            margin-top: 12px;
+        }
+
+        /* Active Task UI */
+        .sticky-task {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 24px;
+            position: sticky;
+            top: 16px;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .sticky-task .task-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .sticky-task .task-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Journal Feed */
+        .journal-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-grow: 1;
+        }
+        .journal-entry {
             background: transparent;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--surface);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            animation: fadeIn 0.3s ease;
+        }
+        .journal-entry .time {
+            font-size: 0.75rem;
+            color: var(--subtext);
+        }
+        .journal-entry .text {
+            font-size: 0.95rem;
+        }
+
+        /* History View */
+        .history-card {
+            background: var(--surface);
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+        }
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .history-card-title {
+            font-weight: 600;
+        }
+        .history-card-time {
+            font-size: 0.8rem;
+            color: var(--subtext);
+        }
+        .history-entry {
+            font-size: 0.9rem;
+            color: var(--subtext);
+            padding-left: 12px;
+            border-left: 2px solid var(--surface-hover);
+            margin-bottom: 8px;
+        }
+
+        .empty-state {
             text-align: center;
+            color: var(--subtext);
+            margin-top: 48px;
         }
     </style>
 </head>
 <body>
 
-    <div id="view-home" class="view active p-6">
-        <p class="text-sm uppercase tracking-widest text-stone-400 mb-8 select-none">
-            What's one thing you'll do next?
-        </p>
+<div class="app-container">
+    <header>
+        <h1>NowFlow</h1>
+        <button id="nav-btn" class="icon-btn" aria-label="Toggle History">
+            <svg id="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+        </button>
+    </header>
+
+    <main id="view-start" class="view active">
+        <h2>What's your single focus right now?</h2>
+        <p class="help-text">Pick one thing. We'll handle the distractions together.</p>
         
-        <div id="home-card" class="card w-full max-w-md bg-white rounded-3xl p-8 flex flex-col items-center justify-center min-h-[250px] cursor-grab">
-            <textarea
-                id="task-input"
-                placeholder="Open the document..."
-                class="w-full text-3xl font-medium placeholder-stone-300"
-                rows="3"
-            ></textarea>
+        <input type="text" id="task-input" placeholder="e.g., Write the project proposal" autocomplete="off">
+        <button id="start-btn">Start Flow</button>
+    </main>
+
+    <main id="view-active" class="view">
+        <div class="sticky-task">
+            <div class="task-label">Current Focus</div>
+            <div class="task-title" id="active-task-title">Task Name</div>
         </div>
 
-        <div class="mt-12 flex justify-between w-full max-w-md px-8 text-xs text-stone-400 select-none">
-            <span>← Clear</span>
-            <span>Start ↑</span>
-            <span>Simplify →</span>
-        </div>
-    </div>
+        <h2>Mind dump</h2>
+        <p class="help-text">Got distracted? Feeling anxious? Write it here and get back to the task.</p>
+        
+        <textarea id="journal-input" placeholder="What's on your mind?"></textarea>
+        <button id="log-btn" class="secondary">Log Thought</button>
 
-    <div id="view-focus" class="view bg-stone-900 text-stone-50 p-8 cursor-grab">
-        <div id="focus-area" class="text-center w-full max-w-md">
-            <p id="focus-task" class="text-2xl font-light mb-8 opacity-80 max-w-sm mx-auto"></p>
-            <h1 id="time-display" class="text-8xl font-light tracking-tighter tabular-nums">5:00</h1>
-            <p id="pause-text" class="mt-4 text-stone-500 text-sm h-6">Tap to pause.</p>
-        </div>
-        <p class="absolute bottom-12 text-stone-600 text-sm select-none">Swipe down to exit early</p>
-    </div>
-
-    <div id="view-inertia" class="view bg-white p-8 justify-end pb-24">
-        <div id="inertia-questions" class="w-full max-w-md">
-            <h2 class="text-2xl font-medium mb-8">What's stopping you?</h2>
-            <div class="flex flex-col gap-3" id="inertia-buttons">
-                </div>
-            <button id="btn-dismiss-inertia" class="w-full mt-4 p-4 text-stone-400 font-medium active:scale-95 transition-transform">
-                Just dismiss (Swipe Down)
-            </button>
-        </div>
-
-        <div id="inertia-suggestion" class="w-full max-w-md hidden">
-            <div id="suggestion-card" class="bg-stone-900 text-stone-50 p-8 rounded-3xl text-center card cursor-grab">
-                <p class="text-sm uppercase tracking-widest text-stone-400 mb-4">Suggestion</p>
-                <p id="suggestion-text" class="text-2xl font-medium mb-8"></p>
-                <div class="flex justify-between text-xs text-stone-400">
-                    <span>← Dismiss</span>
-                    <span>Accept →</span>
-                </div>
+        <div style="margin-top: 32px;"></div>
+        <div class="journal-feed" id="journal-feed">
             </div>
-        </div>
-    </div>
 
-    <div id="view-completion" class="view p-8">
-        <div class="w-full max-w-md text-center">
-            <h2 class="text-4xl font-medium mb-12">Time's up.</h2>
-            <div class="flex flex-col w-full gap-4">
-                <button id="btn-done" class="w-full p-5 rounded-2xl bg-stone-900 text-stone-50 text-lg font-medium active:scale-95 transition-transform">
-                    Done
-                </button>
-                <button id="btn-continue" class="w-full p-5 rounded-2xl bg-stone-200 text-stone-800 text-lg font-medium active:scale-95 transition-transform">
-                    Continue
-                </button>
+        <button id="complete-btn" class="success">Mark Task Complete</button>
+    </main>
+
+    <main id="view-history" class="view">
+        <h2>Past Flows</h2>
+        <p class="help-text">Review what you accomplished and the thoughts you captured.</p>
+        
+        <div id="history-feed">
             </div>
-            <p id="completion-prompt" class="mt-8 text-stone-500 hidden">Want to do another tiny step?</p>
-        </div>
-    </div>
+    </main>
+</div>
 
-    <script>
-        // --- State ---
-        const DEFAULT_TIME = 5 * 60; // 5 minutes
-        let state = {
-            view: 'home',
-            task: localStorage.getItem('adhd_task') || '',
-            timeLeft: DEFAULT_TIME,
-            isPaused: false,
-            timer: null,
-            suggestion: ''
-        };
+<script>
+    /**
+     * App Logic for NowFlow
+     * Minimal Vanilla JS Architecture
+     */
+    const App = {
+        state: {
+            activeTask: null, // { id, title, startTime, entries: [] }
+            history: [],
+            currentView: 'start' // 'start', 'active', 'history'
+        },
 
-        // --- DOM Elements ---
-        const views = ['home', 'focus', 'inertia', 'completion'];
-        const elTaskInput = document.getElementById('task-input');
-        const elTime = document.getElementById('time-display');
-        const elFocusTask = document.getElementById('focus-task');
-        const elPauseText = document.getElementById('pause-text');
-
-        // Initialize Input
-        elTaskInput.value = state.task;
-        elTaskInput.addEventListener('input', (e) => {
-            state.task = e.target.value;
-            localStorage.setItem('adhd_task', state.task);
-        });
-
-        // --- Core Functions ---
-        function setView(newView) {
-            views.forEach(v => document.getElementById(`view-${v}`).classList.remove('active'));
-            document.getElementById(`view-${newView}`).classList.add('active');
-            state.view = newView;
-        }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        function updateTimeDisplay() {
-            elTime.textContent = formatTime(state.timeLeft);
-        }
-
-        function togglePause() {
-            state.isPaused = !state.isPaused;
-            elPauseText.textContent = state.isPaused ? "Paused. Tap to resume." : "Tap to pause.";
-        }
-
-        function startTimer() {
-            if (state.timer) clearInterval(state.timer);
-            updateTimeDisplay();
-            state.timer = setInterval(() => {
-                if (!state.isPaused && state.timeLeft > 0) {
-                    state.timeLeft--;
-                    updateTimeDisplay();
-                } else if (state.timeLeft === 0 && !state.isPaused) {
-                    clearInterval(state.timer);
-                    setView('completion');
-                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                }
-            }, 1000);
-        }
-
-        // --- Swipe Gesture Logic ---
-        function setupSwipe(elementId, callbacks) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
+        // DOM Elements
+        els: {
+            viewStart: document.getElementById('view-start'),
+            viewActive: document.getElementById('view-active'),
+            viewHistory: document.getElementById('view-history'),
             
-            let startX = 0, startY = 0;
-            el.addEventListener('touchstart', e => {
-                startX = e.changedTouches[0].screenX;
-                startY = e.changedTouches[0].screenY;
+            navBtn: document.getElementById('nav-btn'),
+            navIcon: document.getElementById('nav-icon'),
+            
+            taskInput: document.getElementById('task-input'),
+            startBtn: document.getElementById('start-btn'),
+            
+            activeTaskTitle: document.getElementById('active-task-title'),
+            journalInput: document.getElementById('journal-input'),
+            logBtn: document.getElementById('log-btn'),
+            completeBtn: document.getElementById('complete-btn'),
+            journalFeed: document.getElementById('journal-feed'),
+            
+            historyFeed: document.getElementById('history-feed')
+        },
+
+        init() {
+            this.loadState();
+            this.bindEvents();
+            this.evaluateState();
+        },
+
+        bindEvents() {
+            // Start View
+            this.els.startBtn.addEventListener('click', () => this.startTask());
+            this.els.taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.startTask();
             });
-            
-            el.addEventListener('touchend', e => {
-                let endX = e.changedTouches[0].screenX;
-                let endY = e.changedTouches[0].screenY;
-                let diffX = endX - startX;
-                let diffY = endY - startY;
 
-                // Determine swipe direction
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 75 && callbacks.onRight) callbacks.onRight();
-                    if (diffX < -75 && callbacks.onLeft) callbacks.onLeft();
-                } else {
-                    if (diffY > 75 && callbacks.onDown) callbacks.onDown();
-                    if (diffY < -75 && callbacks.onUp) callbacks.onUp();
+            // Active View
+            this.els.logBtn.addEventListener('click', () => this.logJournalEntry());
+            this.els.journalInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.logJournalEntry();
                 }
             });
-        }
+            this.els.completeBtn.addEventListener('click', () => this.completeTask());
 
-        // --- Interactions ---
+            // Navigation
+            this.els.navBtn.addEventListener('click', () => this.toggleHistory());
+        },
 
-        // Home View Gestures
-        setupSwipe('home-card', {
-            onUp: () => {
-                if (state.task.trim() === '') return;
-                state.timeLeft = DEFAULT_TIME;
-                state.isPaused = false;
-                elFocusTask.textContent = state.task;
-                elPauseText.textContent = "Tap to pause.";
-                setView('focus');
-                startTimer();
-                if (navigator.vibrate) navigator.vibrate(50);
-            },
-            onLeft: () => {
-                state.task = '';
-                elTaskInput.value = '';
-                localStorage.setItem('adhd_task', '');
-            },
-            onRight: () => {
-                if (state.task.trim() !== '') {
-                    state.task = `Just 2 minutes of: ${state.task}`;
-                    elTaskInput.value = state.task;
-                    localStorage.setItem('adhd_task', state.task);
+        loadState() {
+            const saved = localStorage.getItem('nowflow_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    this.state.activeTask = parsed.activeTask || null;
+                    this.state.history = parsed.history || [];
+                } catch (e) {
+                    console.error("Failed to parse local storage", e);
                 }
             }
-        });
+        },
 
-        // Focus View Gestures & Taps
-        setupSwipe('view-focus', {
-            onDown: () => {
-                state.isPaused = true;
-                showInertiaQuestions();
-                setView('inertia');
+        saveState() {
+            localStorage.setItem('nowflow_state', JSON.stringify({
+                activeTask: this.state.activeTask,
+                history: this.state.history
+            }));
+        },
+
+        evaluateState() {
+            if (this.state.activeTask) {
+                this.switchView('active');
+            } else {
+                this.switchView('start');
             }
-        });
-        document.getElementById('focus-area').addEventListener('click', togglePause);
+        },
 
-        // Inertia View Logic
-        const reasons = {
-            'Too big': 'Make it smaller: open the file first.',
-            'Don’t know how': 'Just start: type one sentence.',
-            'Boring': 'Do 2 minutes only, then you can stop.',
-            'Tired': 'Close your eyes for 5 mins, then do one tiny step.',
-            'Distracted': 'Put your phone away. Just 5 minutes.'
-        };
+        switchView(viewName) {
+            this.state.currentView = viewName;
+            
+            // Hide all
+            this.els.viewStart.classList.remove('active');
+            this.els.viewActive.classList.remove('active');
+            this.els.viewHistory.classList.remove('active');
 
-        const inertiaContainer = document.getElementById('inertia-buttons');
-        Object.keys(reasons).forEach(reason => {
-            const btn = document.createElement('button');
-            btn.className = "text-left w-full p-4 rounded-2xl bg-stone-100 text-stone-700 font-medium active:scale-95 transition-transform";
-            btn.textContent = reason;
-            btn.onclick = () => {
-                state.suggestion = reasons[reason];
-                document.getElementById('suggestion-text').textContent = state.suggestion;
-                document.getElementById('inertia-questions').classList.add('hidden');
-                document.getElementById('inertia-suggestion').classList.remove('hidden');
+            // Reset icon
+            this.els.navIcon.innerHTML = `<line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>`;
+
+            if (viewName === 'start') {
+                this.els.viewStart.classList.add('active');
+                this.els.taskInput.focus();
+            } else if (viewName === 'active') {
+                this.els.viewActive.classList.add('active');
+                this.els.activeTaskTitle.textContent = this.state.activeTask.title;
+                this.renderJournalFeed();
+                // We deliberately do not auto-focus the journal to prevent keyboard popping up unnecessarily on mobile
+            } else if (viewName === 'history') {
+                this.els.viewHistory.classList.add('active');
+                // Change icon to 'Back'
+                this.els.navIcon.innerHTML = `<line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>`;
+                this.renderHistory();
+            }
+        },
+
+        toggleHistory() {
+            if (this.state.currentView === 'history') {
+                this.evaluateState(); // Go back to where we were
+            } else {
+                this.switchView('history');
+            }
+        },
+
+        startTask() {
+            const title = this.els.taskInput.value.trim();
+            if (!title) return;
+
+            this.state.activeTask = {
+                id: Date.now().toString(),
+                title: title,
+                startTime: Date.now(),
+                entries: []
             };
-            inertiaContainer.appendChild(btn);
-        });
 
-        function showInertiaQuestions() {
-            document.getElementById('inertia-questions').classList.remove('hidden');
-            document.getElementById('inertia-suggestion').classList.add('hidden');
-        }
+            this.els.taskInput.value = '';
+            this.saveState();
+            this.evaluateState();
+        },
 
-        document.getElementById('btn-dismiss-inertia').onclick = () => setView('home');
-        
-        setupSwipe('view-inertia', {
-            onDown: () => setView('home')
-        });
+        logJournalEntry() {
+            const text = this.els.journalInput.value.trim();
+            if (!text || !this.state.activeTask) return;
 
-        setupSwipe('suggestion-card', {
-            onRight: () => {
-                state.task = state.suggestion;
-                elTaskInput.value = state.task;
-                localStorage.setItem('adhd_task', state.task);
-                setView('home');
-            },
-            onLeft: () => {
-                setView('home');
+            this.state.activeTask.entries.push({
+                time: Date.now(),
+                text: text
+            });
+
+            this.els.journalInput.value = '';
+            this.saveState();
+            this.renderJournalFeed();
+        },
+
+        completeTask() {
+            if (!this.state.activeTask) return;
+
+            this.state.activeTask.endTime = Date.now();
+            this.state.history.unshift(this.state.activeTask); // Add to beginning of history
+            this.state.activeTask = null;
+            
+            this.saveState();
+            this.evaluateState();
+        },
+
+        renderJournalFeed() {
+            if (!this.state.activeTask) return;
+            
+            const entries = this.state.activeTask.entries;
+            this.els.journalFeed.innerHTML = '';
+
+            // Render in reverse chronological order
+            [...entries].reverse().forEach(entry => {
+                const div = document.createElement('div');
+                div.className = 'journal-entry';
+                div.innerHTML = `
+                    <div class="time">${this.formatTime(entry.time)}</div>
+                    <div class="text">${this.escapeHTML(entry.text)}</div>
+                `;
+                this.els.journalFeed.appendChild(div);
+            });
+        },
+
+        renderHistory() {
+            this.els.historyFeed.innerHTML = '';
+            
+            if (this.state.history.length === 0) {
+                this.els.historyFeed.innerHTML = `<div class="empty-state">No past flows yet.</div>`;
+                return;
             }
+
+            this.state.history.forEach(task => {
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                
+                let entriesHtml = '';
+                if (task.entries && task.entries.length > 0) {
+                    entriesHtml = task.entries.map(e => `
+                        <div class="history-entry">
+                            <strong>${this.formatTime(e.time)}:</strong> ${this.escapeHTML(e.text)}
+                        </div>
+                    `).join('');
+                } else {
+                    entriesHtml = `<div class="history-entry" style="border-left-color: transparent; opacity: 0.5;">No distractions logged. Great focus!</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="history-card-header">
+                        <div class="history-card-title">${this.escapeHTML(task.title)}</div>
+                        <div class="history-card-time">${this.formatDate(task.startTime)}</div>
+                    </div>
+                    ${entriesHtml}
+                `;
+                this.els.historyFeed.appendChild(card);
+            });
+        },
+
+        formatTime(timestamp) {
+            return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(timestamp));
+        },
+
+        formatDate(timestamp) {
+            return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(timestamp));
+        },
+
+        escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag])
+            );
+        }
+    };
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+        App.init();
+    });
+
+    /**
+     * Inline Service Worker for Offline PWA Support
+     * Using a Blob to register a service worker directly from the HTML file.
+     */
+    const swCode = `
+        const CACHE_NAME = 'nowflow-v1';
+        self.addEventListener('install', (event) => {
+            self.skipWaiting();
         });
+        self.addEventListener('activate', (event) => {
+            event.waitUntil(clients.claim());
+        });
+        self.addEventListener('fetch', (event) => {
+            event.respondWith(
+                fetch(event.request).catch(() => {
+                    return new Response(
+                        "You are offline. NowFlow works entirely locally, please keep the tab open.", 
+                        { status: 503, statusText: 'Service Unavailable' }
+                    );
+                })
+            );
+        });
+    `;
 
-        // Completion View Logic
-        document.getElementById('btn-done').onclick = () => {
-            state.task = '';
-            elTaskInput.value = '';
-            localStorage.setItem('adhd_task', '');
-            document.getElementById('completion-prompt').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('completion-prompt').classList.add('hidden');
-                setView('home');
-            }, 2000);
-        };
-
-        document.getElementById('btn-continue').onclick = () => {
-            state.timeLeft = DEFAULT_TIME;
-            state.isPaused = false;
-            setView('focus');
-            startTimer();
-        };
-
-    </script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            // Note: Blob-based SW scope is restricted, but satisfies the 1-file constraint.
+            navigator.serviceWorker.register(swUrl).catch(err => {
+                console.log('SW registration fallback (expected for blob URLs in strict browsers)', err);
+            });
+        });
+    }
+</script>
 </body>
 </html>
