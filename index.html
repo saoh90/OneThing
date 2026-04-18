@@ -3,36 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>FlowDeck Pro</title>
+    <title>FlowDeck Pro - ADHD Edition</title>
     <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <script>
-        const manifest = {
-            "name": "FlowDeck",
-            "short_name": "FlowDeck",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#000000",
-            "theme_color": "#007AFF",
-            "description": "Gamified interstitial journaling with Apple-style UX."
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-        document.write(`<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
-    </script>
-
     <style>
         /* Apple-style CSS & Variables */
         :root {
             --sys-blue: #007AFF; --sys-green: #34C759; --sys-red: #FF3B30; 
-            --sys-orange: #FF9500; --sys-purple: #AF52DE;
+            --sys-orange: #FF9500; --sys-purple: #AF52DE; --sys-teal: #5AC8FA;
             --sys-bg: #F2F2F7; --sys-surface: #FFFFFF; 
             --sys-text: #000000; --sys-subtext: #8E8E93;
-            --sys-border: rgba(0,0,0,0.1); --sys-glass: rgba(255,255,255,0.8);
+            --sys-border: rgba(0,0,0,0.1); --sys-glass: rgba(255,255,255,0.85);
             
-            /* Matrix Colors */
             --cat-important-bg: #FFF9C4; --cat-important-text: #F57F17;
             --cat-not-important-bg: #F5F5F5; --cat-not-important-text: #9E9E9E;
             --cat-urgent-bg: #FFEBEE; --cat-urgent-text: #D32F2F;
@@ -45,12 +30,11 @@
         @media (prefers-color-scheme: dark) {
             :root {
                 --sys-blue: #0A84FF; --sys-green: #30D158; --sys-red: #FF453A;
-                --sys-orange: #FF9F0A; --sys-purple: #BF5AF2;
+                --sys-orange: #FF9F0A; --sys-purple: #BF5AF2; --sys-teal: #64D2FF;
                 --sys-bg: #000000; --sys-surface: #1C1C1E; 
                 --sys-text: #FFFFFF; --sys-subtext: #98989D;
-                --sys-border: rgba(255,255,255,0.15); --sys-glass: rgba(28,28,30,0.8);
+                --sys-border: rgba(255,255,255,0.15); --sys-glass: rgba(28,28,30,0.85);
                 
-                /* Dark Mode Matrix Colors */
                 --cat-important-bg: #403816; --cat-important-text: #FFF59D;
                 --cat-not-important-bg: #2C2C2E; --cat-not-important-text: #8E8E93;
                 --cat-urgent-bg: #4A1A1E; --cat-urgent-text: #EF9A9A;
@@ -59,7 +43,6 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
-
         body { background-color: var(--sys-bg); color: var(--sys-text); overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; }
 
         /* Header */
@@ -87,79 +70,91 @@
         }
         .view.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
 
-        /* Typography & Forms */
         h1 { font-size: 34px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.8px; }
-        h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.4px; }
+        h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.4px; }
+        h3 { font-size: 15px; font-weight: 600; color: var(--sys-subtext); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;}
         
         .input-group { background: var(--sys-surface); border-radius: 16px; padding: 8px; display: flex; margin-bottom: 24px; }
-        input[type="text"], textarea { flex-grow: 1; border: none; background: transparent; padding: 12px; font-size: 17px; color: var(--sys-text); outline: none; }
-        textarea { resize: none; min-height: 80px; width: 100%; }
+        input[type="text"] { flex-grow: 1; border: none; background: transparent; padding: 12px; font-size: 17px; color: var(--sys-text); outline: none; }
 
-        button.btn-primary { background: var(--sys-blue); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: 0.1s; }
+        button.btn-primary { background: var(--sys-blue); color: white; border: none; padding: 14px 20px; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px;}
         button.btn-primary:active { transform: scale(0.96); opacity: 0.9; }
-        button.btn-block { width: 100%; padding: 16px; border-radius: 14px; margin-bottom: 16px; }
+        button.btn-block { width: 100%; margin-bottom: 12px; }
         button.btn-success { background: var(--sys-green); }
         button.btn-danger { background: var(--sys-red); }
-        button.btn-ghost { background: transparent; color: var(--sys-red); width: 100%; padding: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+        button.btn-ghost { background: transparent; color: var(--sys-subtext); width: 100%; padding: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+        button.btn-ghost:active { color: var(--sys-text); }
 
-        /* Tinder-like Triage Stack */
+        /* Triage Stack */
         .card-stack { position: relative; height: 350px; width: 100%; margin-top: 20px; perspective: 1000px; }
         .task-card {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--sys-surface); border-radius: 24px; padding: 32px 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center; border: 2px solid transparent;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--sys-surface); border-radius: 24px; padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 2px solid transparent;
             transform-origin: 50% 100%; will-change: transform; user-select: none; touch-action: none;
         }
-        .task-card .task-title { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+        .task-card .task-title { font-size: 26px; font-weight: 700; margin-bottom: 16px; line-height: 1.2;}
         .task-card .task-hint { color: var(--sys-subtext); font-size: 13px; margin-top: auto; }
         
-        .card-delete-btn {
-            position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.05); border: none; 
-            border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
-            color: var(--sys-subtext); cursor: pointer; z-index: 10;
-        }
-
+        .card-delete-btn { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.05); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: var(--sys-subtext); z-index: 10; }
         .swipe-overlay { position: absolute; font-size: 24px; font-weight: 800; text-transform: uppercase; border: 3px solid; border-radius: 12px; padding: 4px 12px; opacity: 0; pointer-events: none; }
         .swipe-right-overlay { top: 24px; left: 24px; color: var(--sys-red); border-color: var(--sys-red); transform: rotate(-15deg); }
         .swipe-left-overlay { top: 24px; right: 24px; color: var(--sys-blue); border-color: var(--sys-blue); transform: rotate(15deg); }
         .swipe-up-overlay { bottom: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-orange); border-color: var(--sys-orange); }
         .swipe-down-overlay { top: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-subtext); border-color: var(--sys-subtext); }
-
         .empty-stack { text-align: center; color: var(--sys-subtext); padding-top: 100px; }
 
-        /* Work Mode UI */
-        .active-task-banner { background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white; padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .active-task-banner h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px;}
-        .active-task-banner h2 { font-size: 26px; margin: 0 0 16px 0; font-weight: 700;}
-        .live-timer { font-size: 36px; font-variant-numeric: tabular-nums; font-weight: 800; font-family: monospace; background: rgba(0,0,0,0.2); padding: 8px 20px; border-radius: 16px; }
+        /* Bottom Sheets (Modals) */
+        .sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .sheet-overlay.active { opacity: 1; pointer-events: auto; }
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sys-surface); border-radius: 24px 24px 0 0; padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        .bottom-sheet.active { transform: translateY(0); }
+        
+        /* 1-Tap Pills & Emojis */
+        .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+        .pill-grid.emojis { grid-template-columns: repeat(5, 1fr); gap: 8px;}
+        .pill-btn { background: var(--sys-bg); border: 2px solid transparent; color: var(--sys-text); padding: 12px; border-radius: 16px; font-size: 15px; font-weight: 600; text-align: center; transition: 0.1s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .pill-btn.emoji { font-size: 12px; padding: 12px 4px; color: var(--sys-subtext);}
+        .pill-btn.emoji span { font-size: 28px; }
+        .pill-btn:active, .pill-btn.selected { background: var(--sys-blue); color: white; transform: scale(0.95); }
+        .pill-btn.selected.stress-0 { background: var(--sys-green); }
+        .pill-btn.selected.stress-1 { background: var(--sys-blue); }
+        .pill-btn.selected.stress-2 { background: var(--sys-orange); }
+        .pill-btn.selected.stress-3 { background: var(--sys-red); }
 
-        /* Profile & Collapsible History */
-        details.history-item { background: var(--sys-surface); border-radius: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); overflow: hidden; }
-        details.history-item summary { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }
-        details.history-item summary::-webkit-details-marker { display: none; }
-        .history-logs { padding: 0 20px 16px 20px; font-size: 15px; color: var(--sys-text); }
+        /* Work Mode UI */
+        .active-task-banner { background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white; padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); text-align: center; position: relative;}
+        .active-task-banner.stress-2 { background: linear-gradient(135deg, var(--sys-orange), #D35400); box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);}
+        .active-task-banner.stress-3 { background: linear-gradient(135deg, var(--sys-red), #C0392B); box-shadow: 0 8px 20px rgba(255, 59, 48, 0.3);}
+        .active-task-banner h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px; color: white;}
+        .active-task-banner h2 { font-size: 24px; margin: 0 0 16px 0; font-weight: 700;}
+        .live-timer { font-size: 40px; font-variant-numeric: tabular-nums; font-weight: 800; font-family: monospace; background: rgba(0,0,0,0.2); padding: 8px 20px; border-radius: 16px; display: inline-block;}
+        
+        .journal-feed { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;}
+        .journal-entry { background: var(--sys-surface); padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; font-size: 14px;}
+        .journal-entry span.time { color: var(--sys-subtext); font-size: 12px; }
+
+        /* Profile Stats */
+        .stat-box { background: var(--sys-surface); padding: 16px; border-radius: 16px; text-align: center; flex: 1;}
+        .stat-box strong { font-size: 24px; display: block; margin-top: 4px;}
+        .history-item { background: var(--sys-surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
+        .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
         /* Navigation Tab Bar */
-        .tab-bar {
-            position: absolute; bottom: 0; left: 0; right: 0; height: calc(var(--tab-height) + var(--safe-bottom));
-            background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--sys-border); display: flex; justify-content: space-around;
-            align-items: flex-start; padding-top: 12px; padding-bottom: var(--safe-bottom); z-index: 100;
-        }
+        .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: calc(var(--tab-height) + var(--safe-bottom)); background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--sys-border); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; padding-bottom: var(--safe-bottom); z-index: 100; }
         .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; }
         .tab-item.active { color: var(--sys-blue); }
         .tab-item svg { width: 28px; height: 28px; margin-bottom: 4px; stroke-width: 2;}
         .tab-item span { font-size: 10px; font-weight: 600; }
 
-        .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-title" id="header-title">Tasks</div>
+        <div class="header-title" id="header-title">Inbox</div>
         <div class="points-badge" id="points-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             <span id="score-display">0</span>
@@ -167,16 +162,12 @@
     </header>
 
     <div class="views-container">
-        
         <div id="view-tasks" class="view active">
-            <h1>Inbox Triage</h1>
             <div class="input-group">
                 <input type="text" id="new-task-input" placeholder="Add a new task..." autocomplete="off">
-                <button class="btn-primary" id="add-task-btn">+</button>
+                <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
             </div>
-            <div id="active-task-warning" style="display: none; text-align: center; color: var(--sys-orange); padding: 20px; background: var(--sys-surface); border-radius: 16px;">
-                You have an ongoing task. Finish or abandon it before starting a new one.
-            </div>
+            
             <div class="card-stack" id="card-stack"></div>
             <div id="empty-stack-msg" class="empty-stack">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -186,13 +177,25 @@
 
         <div id="view-work" class="view">
             <div id="work-content">
-                <div class="active-task-banner">
+                <div class="active-task-banner" id="active-banner">
                     <h3>Focusing On</h3>
                     <h2 id="active-task-title">Task Name</h2>
                     <div class="live-timer" id="live-timer">00:00</div>
                 </div>
-                <div style="height: 24px;"></div>
-                <button class="btn-primary btn-block btn-success" id="complete-btn">Complete Task (+50 pts)</button>
+
+                <h3>Quick Log (Distracted?)</h3>
+                <div class="pill-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                    <div class="pill-btn log-distraction" data-val="Bored">🥱 Bored</div>
+                    <div class="pill-btn log-distraction" data-val="Anxious">😰 Anxious</div>
+                    <div class="pill-btn log-distraction" data-val="Idea">💡 Idea</div>
+                </div>
+                
+                <div class="journal-feed" id="journal-feed"></div>
+
+                <div style="height: 12px;"></div>
+                <button class="btn-primary btn-block btn-success" id="complete-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Complete Task (+50)
+                </button>
                 <button class="btn-ghost" id="abandon-btn">Abandon Task</button>
             </div>
             <div id="no-work-content" class="empty-stack">
@@ -202,27 +205,52 @@
         </div>
 
         <div id="view-settings" class="view">
-            <h1>Profile</h1>
-            <div style="display:flex; justify-content: space-between; margin-bottom: 24px;">
-                <div style="background: var(--sys-surface); padding: 16px; border-radius: 16px; width: 48%; text-align: center;">
-                    <span style="font-size: 13px; color: var(--sys-subtext);">Score</span><br>
-                    <strong id="stats-score" style="color: var(--sys-orange); font-size: 24px;">0</strong>
-                </div>
-                <div style="background: var(--sys-surface); padding: 16px; border-radius: 16px; width: 48%; text-align: center;">
-                    <span style="font-size: 13px; color: var(--sys-subtext);">Completed</span><br>
-                    <strong id="stats-completed" style="font-size: 24px;">0</strong>
-                </div>
+            <h1>Insights</h1>
+            <div style="display:flex; gap: 12px; margin-bottom: 24px;">
+                <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Score</span><strong id="stats-score" style="color: var(--sys-orange);">0</strong></div>
+                <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Tasks</span><strong id="stats-completed">0</strong></div>
             </div>
-            <h2>History</h2>
+            
+            <h3>High Stress Patterns</h3>
+            <div id="pattern-feed" style="margin-bottom: 24px; color: var(--sys-subtext); font-size: 14px;"></div>
+
+            <h3>Recent History</h3>
             <div id="history-feed" style="margin-bottom: 24px;"></div>
-            <button class="btn-primary btn-block btn-danger" id="reset-btn">Reset All Data</button>
+            <button class="btn-ghost" id="reset-btn" style="color: var(--sys-red);">Reset All Data</button>
+        </div>
+    </div>
+
+    <div class="sheet-overlay" id="sheet-overlay"></div>
+    <div class="bottom-sheet" id="preflight-sheet">
+        <h2 style="text-align: center;">How does this feel?</h2>
+        <div class="pill-grid emojis" id="emotion-grid">
+            <div class="pill-btn emoji" data-stress="0" data-emo="🔥"><span>🔥</span>Excited</div>
+            <div class="pill-btn emoji" data-stress="0" data-emo="😌"><span>😌</span>Calm</div>
+            <div class="pill-btn emoji" data-stress="1" data-emo="😐"><span>😐</span>Neutral</div>
+            <div class="pill-btn emoji" data-stress="2" data-emo="😣"><span>😣</span>Stressed</div>
+            <div class="pill-btn emoji" data-stress="3" data-emo="😨"><span>😨</span>Avoiding</div>
         </div>
 
+        <div id="intervention-zone" style="display: none; animation: floatUp 0.3s forwards;">
+            <hr style="border: 0; height: 1px; background: var(--sys-border); margin: 20px 0;">
+            <h3>Why blocked?</h3>
+            <div class="pill-grid" id="block-reason-grid">
+                <div class="pill-btn reason" data-val="Unclear">🌫 Unclear</div>
+                <div class="pill-btn reason" data-val="Too Big">🏔 Too Big</div>
+                <div class="pill-btn reason" data-val="Boring">🥱 Boring</div>
+                <div class="pill-btn reason" data-val="Fear">😨 Fear</div>
+            </div>
+
+            <h3>Action Required</h3>
+            <button class="btn-primary btn-block" id="action-2min" style="background: var(--sys-purple);">Do 2-Minute Version</button>
+            <button class="btn-primary btn-block" id="action-break" style="background: var(--sys-blue);">Break into Smaller Step</button>
+            <button class="btn-primary btn-block" id="action-delay" style="background: var(--sys-surface); color: var(--sys-text); border: 1px solid var(--sys-border);">Delay Intentionally</button>
+        </div>
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" data-target="view-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Tasks</span></div>
-        <div class="tab-item" data-target="view-work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg><span>Work</span></div>
+        <div class="tab-item active" data-target="view-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Inbox</span></div>
+        <div class="tab-item" data-target="view-work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg><span>Focus</span></div>
         <div class="tab-item" data-target="view-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Profile</span></div>
     </nav>
 
@@ -230,23 +258,27 @@
     const App = {
         state: { tasks: [], activeTask: null, history: [], points: 0 },
         timerInterval: null,
+        pendingTaskId: null,
+        preflightData: { stress: 0, emo: '', reason: '' },
 
         els: {
             views: document.querySelectorAll('.view'), tabs: document.querySelectorAll('.tab-item'),
-            headerTitle: document.getElementById('header-title'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
-            taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'), activeTaskWarning: document.getElementById('active-task-warning'),
-            workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'), liveTimer: document.getElementById('live-timer'),
-            completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
-            statsScore: document.getElementById('stats-score'), statsCompleted: document.getElementById('stats-completed'), historyFeed: document.getElementById('history-feed'), resetBtn: document.getElementById('reset-btn')
+            scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
+            taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'),
+            workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'), activeBanner: document.getElementById('active-banner'), liveTimer: document.getElementById('live-timer'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
+            sheetOverlay: document.getElementById('sheet-overlay'), preflightSheet: document.getElementById('preflight-sheet'), emotionGrid: document.getElementById('emotion-grid'), interventionZone: document.getElementById('intervention-zone'), blockReasonGrid: document.getElementById('block-reason-grid')
         },
 
         init() {
             this.loadState(); this.bindEvents(); this.updateUI(); this.renderTasks();
-            if(this.state.activeTask) this.startTimerDisplay();
+            if(this.state.activeTask) {
+                const workTab = document.querySelector('.tab-item[data-target="view-work"]');
+                this.switchTab('view-work', workTab);
+                this.startTimerDisplay();
+            }
         },
 
         vibrate(ms = 50) { if (navigator.vibrate) navigator.vibrate(ms); },
-
         loadState() { const saved = localStorage.getItem('flowdeck_state'); if (saved) { try { this.state = { ...this.state, ...JSON.parse(saved) }; } catch(e) {} } },
         saveState() { localStorage.setItem('flowdeck_state', JSON.stringify(this.state)); this.updateUI(); },
 
@@ -254,30 +286,87 @@
             this.els.tabs.forEach(tab => tab.addEventListener('click', () => { this.vibrate(20); this.switchTab(tab.dataset.target, tab); }));
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
+            
+            // Work Mode Distractions
+            document.querySelectorAll('.log-distraction').forEach(btn => btn.addEventListener('click', (e) => {
+                this.vibrate(30);
+                if(this.state.activeTask) {
+                    this.state.activeTask.entries.push({ time: Date.now(), text: e.target.dataset.val });
+                    this.saveState(); this.renderJournalFeed(); this.awardPoints(2, e);
+                }
+            }));
+
             this.els.completeBtn.addEventListener('click', (e) => this.completeTask(e));
-            this.els.abandonBtn.addEventListener('click', () => { if(confirm("Abandon this task? It will return to your inbox.")) this.abandonTask(); });
-            this.els.resetBtn.addEventListener('click', () => { if(confirm("Erase all data?")) { localStorage.removeItem('flowdeck_state'); location.reload(); } });
+            this.els.abandonBtn.addEventListener('click', () => this.abandonTask());
+            document.getElementById('reset-btn').addEventListener('click', () => { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } });
+            
+            // Sheet close
+            this.els.sheetOverlay.addEventListener('click', () => this.closeSheet());
+
+            // Emotion Preflight
+            this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                this.vibrate(20);
+                this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', `stress-${b.dataset.stress}`));
+                btn.classList.add('selected', `stress-${btn.dataset.stress}`);
+                
+                this.preflightData.stress = parseInt(btn.dataset.stress);
+                this.preflightData.emo = btn.dataset.emo;
+                
+                if (this.preflightData.stress >= 2) {
+                    this.els.interventionZone.style.display = 'block';
+                } else {
+                    this.launchTask(null); // Launch immediately if chill
+                }
+            }));
+
+            // Block Reasons
+            this.els.blockReasonGrid.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                this.vibrate(20);
+                this.els.blockReasonGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', 'stress-1'));
+                btn.classList.add('selected', 'stress-1');
+                this.preflightData.reason = btn.dataset.val;
+            }));
+
+            // Interventions
+            document.getElementById('action-2min').addEventListener('click', () => this.launchTask('2min'));
+            document.getElementById('action-delay').addEventListener('click', () => {
+                this.vibrate(50);
+                const t = this.state.tasks.find(x => x.id === this.pendingTaskId);
+                if(t) t.delayed = true; // Mark as delayed
+                this.saveState(); this.renderTasks(); this.closeSheet();
+            });
+            document.getElementById('action-break').addEventListener('click', () => {
+                const step = prompt("What is the absolute smallest first step?");
+                if(step) {
+                    const t = this.state.tasks.find(x => x.id === this.pendingTaskId);
+                    if(t) t.title = step + " (was: " + t.title + ")";
+                    this.launchTask(null);
+                }
+            });
         },
 
         switchTab(targetId, tabEl) {
+            if (targetId === 'view-tasks' && this.state.activeTask) {
+                alert("You have an active task. Focus!");
+                return;
+            }
             this.els.tabs.forEach(t => t.classList.remove('active')); tabEl.classList.add('active');
             this.els.views.forEach(v => v.classList.remove('active')); document.getElementById(targetId).classList.add('active');
-            const titles = { 'view-tasks': 'Tasks', 'view-work': 'Work Mode', 'view-settings': 'Profile' };
-            this.els.headerTitle.textContent = titles[targetId];
+            const titles = { 'view-tasks': 'Inbox', 'view-work': 'Focus', 'view-settings': 'Profile' };
+            document.getElementById('header-title').textContent = titles[targetId];
+            
             if(targetId === 'view-tasks') this.renderTasks();
             if(targetId === 'view-work') this.renderWorkView();
             if(targetId === 'view-settings') this.renderSettings();
         },
 
         updateUI() { this.els.scoreDisplay.textContent = this.state.points; },
-
         awardPoints(amount, e) {
             this.state.points += amount; this.saveState();
             this.els.pointsBadge.style.transform = 'scale(1.2)'; setTimeout(() => this.els.pointsBadge.style.transform = 'scale(1)', 200);
             const floater = document.createElement('div'); floater.className = 'floating-score'; floater.textContent = `+${amount}`;
             let x = window.innerWidth / 2, y = window.innerHeight / 2;
             if (e && e.changedTouches) { x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; }
-            else if (e && e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; } 
             else if (e && e.clientX) { x = e.clientX; y = e.clientY; }
             floater.style.left = `${x}px`; floater.style.top = `${y}px`; document.body.appendChild(floater);
             setTimeout(() => floater.remove(), 1000);
@@ -286,22 +375,15 @@
         /* TASKS */
         addTask() {
             const title = this.els.taskInput.value.trim(); if(!title) return;
-            this.state.tasks.unshift({ id: Date.now().toString(), title, category: null });
+            this.state.tasks.unshift({ id: Date.now().toString(), title, category: null, delayed: false });
             this.els.taskInput.value = ''; this.els.taskInput.blur();
             this.saveState(); this.renderTasks();
         },
 
-        deleteTask(id) {
-            this.state.tasks = this.state.tasks.filter(t => t.id !== id);
-            this.saveState(); this.renderTasks();
-        },
+        deleteTask(id) { this.state.tasks = this.state.tasks.filter(t => t.id !== id); this.saveState(); this.renderTasks(); },
 
         renderTasks() {
             this.els.cardStack.innerHTML = '';
-            if (this.state.activeTask) {
-                this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'none'; this.els.activeTaskWarning.style.display = 'block'; return;
-            }
-            this.els.activeTaskWarning.style.display = 'none';
             if (this.state.tasks.length === 0) {
                 this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'block'; return;
             }
@@ -321,11 +403,10 @@
                 card.style.zIndex = index; 
                 card.style.transform = `translateY(${(displayTasks.length - 1 - index) * 15}px) scale(${1 - ((displayTasks.length - 1 - index) * 0.05)})`;
                 
-                let badgeHtml = '';
-                if (task.category && catLabels[task.category]) {
+                let badgeHtml = task.delayed ? `<div style="color: var(--sys-orange); font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">⏰ Delayed</div>` : '';
+                if (!task.delayed && task.category && catLabels[task.category]) {
                     const info = catLabels[task.category];
-                    card.style.backgroundColor = info.bg;
-                    card.style.borderColor = info.color;
+                    card.style.backgroundColor = info.bg; card.style.borderColor = info.color;
                     badgeHtml = `<div style="color: ${info.color}; font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">• ${info.label}</div>`;
                 }
 
@@ -339,8 +420,6 @@
                 `;
                 
                 if (isTopCard) this.initSwipeLogic(card, task.id);
-                
-                // Bind delete separately
                 const delBtn = card.querySelector('.card-delete-btn');
                 delBtn.addEventListener('click', (e) => { e.stopPropagation(); this.vibrate(50); this.deleteTask(task.id); });
                 
@@ -353,37 +432,32 @@
             const threshold = window.innerWidth * 0.25;
             const overlays = { r: card.querySelector('.swipe-right-overlay'), l: card.querySelector('.swipe-left-overlay'), u: card.querySelector('.swipe-up-overlay'), d: card.querySelector('.swipe-down-overlay') };
 
-            const onStart = (e) => { 
-                startX = e.touches ? e.touches[0].clientX : e.clientX; 
-                startY = e.touches ? e.touches[0].clientY : e.clientY; 
+            card.addEventListener('touchstart', (e) => { 
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY; 
                 isDragging = true; moved = false; card.style.transition = 'none'; 
-            };
+            }, {passive: true});
             
-            const onMove = (e) => {
+            card.addEventListener('touchmove', (e) => {
                 if(!isDragging) return; 
-                currentX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
-                currentY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+                currentX = e.touches[0].clientX - startX; currentY = e.touches[0].clientY - startY;
                 if(Math.abs(currentX) > 5 || Math.abs(currentY) > 5) moved = true;
 
                 card.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentX * 0.05}deg)`;
-                
                 Object.values(overlays).forEach(o => o.style.opacity = 0);
                 if (Math.abs(currentX) > Math.abs(currentY)) {
-                    if (currentX > 0) overlays.r.style.opacity = Math.min(currentX / threshold, 1);
-                    else overlays.l.style.opacity = Math.min(Math.abs(currentX) / threshold, 1);
+                    if (currentX > 0) overlays.r.style.opacity = Math.min(currentX / threshold, 1); else overlays.l.style.opacity = Math.min(Math.abs(currentX) / threshold, 1);
                 } else {
-                    if (currentY < 0) overlays.u.style.opacity = Math.min(Math.abs(currentY) / threshold, 1);
-                    else overlays.d.style.opacity = Math.min(currentY / threshold, 1);
+                    if (currentY < 0) overlays.u.style.opacity = Math.min(Math.abs(currentY) / threshold, 1); else overlays.d.style.opacity = Math.min(currentY / threshold, 1);
                 }
-            };
+            }, {passive: true});
 
-            const onEnd = (e) => {
+            card.addEventListener('touchend', (e) => {
                 if(!isDragging) return; isDragging = false; 
                 card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
 
                 if (!moved) {
-                    if(!e.target.closest('.card-delete-btn')) { this.vibrate(20); this.startTask(taskId, e); }
-                    currentX = 0; currentY = 0; return;
+                    if(!e.target.closest('.card-delete-btn')) { this.vibrate(20); this.openPreflight(taskId); }
+                    return;
                 }
 
                 const absX = Math.abs(currentX), absY = Math.abs(currentY);
@@ -397,38 +471,63 @@
                     }
                     card.style.opacity = 0;
                 } else {
-                    card.style.transform = `translate(0px, 0px) scale(1)`; 
-                    Object.values(overlays).forEach(o => o.style.opacity = 0);
+                    card.style.transform = `translate(0px, 0px) scale(1)`; Object.values(overlays).forEach(o => o.style.opacity = 0);
                 }
-                currentX = 0; currentY = 0;
-            };
-
-            card.addEventListener('touchstart', onStart, {passive: true}); card.addEventListener('touchmove', onMove, {passive: true}); card.addEventListener('touchend', onEnd);
+            });
         },
 
         markTask(id, category) {
-            this.vibrate([20, 40]);
-            const index = this.state.tasks.findIndex(t => t.id === id);
+            this.vibrate([20, 40]); const index = this.state.tasks.findIndex(t => t.id === id);
             if (index > -1) {
-                const task = this.state.tasks.splice(index, 1)[0];
-                task.category = category;
-                this.state.tasks.push(task); // Re-queue to bottom of deck
-                this.saveState(); this.renderTasks();
+                const task = this.state.tasks.splice(index, 1)[0]; task.category = category; task.delayed = false;
+                this.state.tasks.push(task); this.saveState(); this.renderTasks();
             }
         },
 
-        startTask(id, e) {
-            const task = this.state.tasks.find(t => t.id === id); this.state.tasks = this.state.tasks.filter(t => t.id !== id);
-            this.state.activeTask = { id: task.id, title: task.title, category: task.category, startTime: Date.now(), entries: [] };
-            this.awardPoints(10, e); this.saveState(); this.startTimerDisplay();
+        /* PREFLIGHT */
+        openPreflight(id) {
+            this.pendingTaskId = id;
+            this.preflightData = { stress: 0, emo: '', reason: '' };
+            this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', `stress-${b.dataset.stress}`));
+            this.els.blockReasonGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', 'stress-1'));
+            this.els.interventionZone.style.display = 'none';
+            
+            this.els.sheetOverlay.classList.add('active');
+            this.els.preflightSheet.classList.add('active');
+        },
+        
+        closeSheet() {
+            this.els.sheetOverlay.classList.remove('active');
+            this.els.preflightSheet.classList.remove('active');
+            this.pendingTaskId = null;
+        },
+
+        launchTask(mode) {
+            const task = this.state.tasks.find(t => t.id === this.pendingTaskId);
+            this.state.tasks = this.state.tasks.filter(t => t.id !== this.pendingTaskId);
+            
+            this.state.activeTask = { 
+                id: task.id, title: task.title, 
+                stress: this.preflightData.stress, emo: this.preflightData.emo, reason: this.preflightData.reason,
+                startTime: Date.now(), mode: mode, entries: [] 
+            };
+            
+            this.closeSheet(); this.awardPoints(10); this.saveState(); 
             this.switchTab('view-work', document.querySelector('.tab-item[data-target="view-work"]'));
+            this.startTimerDisplay();
         },
 
         /* WORK */
         startTimerDisplay() {
             clearInterval(this.timerInterval);
             const update = () => {
-                const diff = Math.floor((Date.now() - this.state.activeTask.startTime) / 1000);
+                let diff = Math.floor((Date.now() - this.state.activeTask.startTime) / 1000);
+                
+                if (this.state.activeTask.mode === '2min') {
+                    diff = 120 - diff;
+                    if (diff <= 0) { diff = 0; clearInterval(this.timerInterval); this.vibrate([100, 100, 100]); }
+                }
+                
                 const m = String(Math.floor(diff / 60)).padStart(2, '0');
                 const s = String(diff % 60).padStart(2, '0');
                 this.els.liveTimer.textContent = `${m}:${s}`;
@@ -440,10 +539,25 @@
             if(this.state.activeTask) {
                 this.els.workContent.style.display = 'block'; this.els.noWorkContent.style.display = 'none';
                 this.els.activeTaskTitle.textContent = this.state.activeTask.title;
+                
+                this.els.activeBanner.className = 'active-task-banner';
+                if(this.state.activeTask.stress >= 2) this.els.activeBanner.classList.add(`stress-${this.state.activeTask.stress}`);
+                
+                this.renderJournalFeed();
             } else {
                 this.els.workContent.style.display = 'none'; this.els.noWorkContent.style.display = 'block';
                 clearInterval(this.timerInterval);
             }
+        },
+
+        renderJournalFeed() {
+            this.els.journalFeed.innerHTML = '';
+            [...this.state.activeTask.entries].reverse().forEach(entry => {
+                const el = document.createElement('div'); el.className = 'journal-entry';
+                const time = new Intl.DateTimeFormat('en-US', {hour:'numeric', minute:'2-digit'}).format(entry.time);
+                el.innerHTML = `<span>${this.escapeHTML(entry.text)}</span> <span class="time">${time}</span>`;
+                this.els.journalFeed.appendChild(el);
+            });
         },
 
         completeTask(e) {
@@ -457,39 +571,47 @@
         abandonTask() {
             if(!this.state.activeTask) return;
             this.vibrate(100); clearInterval(this.timerInterval);
-            this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title, category: this.state.activeTask.category});
+            this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title, delayed: true});
             this.state.activeTask = null; this.saveState();
             this.switchTab('view-tasks', document.querySelector('.tab-item[data-target="view-tasks"]'));
         },
 
-        /* SETTINGS / HISTORY */
+        /* PROFILE */
         renderSettings() {
-            this.els.statsScore.textContent = this.state.points; this.els.statsCompleted.textContent = this.state.history.length;
-            this.els.historyFeed.innerHTML = '';
-            if(this.state.history.length === 0) { this.els.historyFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 15px; text-align: center;">No completed tasks yet.</p>'; return; }
+            this.els.scoreDisplay.textContent = this.state.points;
+            document.getElementById('stats-score').textContent = this.state.points; 
+            document.getElementById('stats-completed').textContent = this.state.history.length;
             
-            this.state.history.forEach(task => {
-                const el = document.createElement('details'); el.className = 'history-item';
-                const date = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric'}).format(task.startTime);
-                const durationRaw = task.endTime ? Math.floor((task.endTime - task.startTime)/60000) : 0;
-                
+            // Patterns
+            const patterns = document.getElementById('pattern-feed');
+            const highStressTasks = this.state.history.filter(h => h.stress >= 2);
+            if (highStressTasks.length > 0) {
+                const reasons = highStressTasks.map(h => h.reason).reduce((acc, r) => { if(r) acc[r] = (acc[r]||0)+1; return acc; }, {});
+                const topReason = Object.keys(reasons).length > 0 ? Object.keys(reasons).reduce((a,b)=>reasons[a]>reasons[b]?a:b) : 'Unknown';
+                patterns.innerHTML = `You've completed ${highStressTasks.length} high-stress tasks. Most common block: <strong>${topReason}</strong>.`;
+            } else {
+                patterns.innerHTML = "No high-stress patterns detected yet. Keep flowing!";
+            }
+
+            // History
+            const histFeed = document.getElementById('history-feed');
+            histFeed.innerHTML = '';
+            if(this.state.history.length === 0) { histFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 14px; text-align: center;">No history yet.</p>'; return; }
+            
+            this.state.history.slice(0,10).forEach(task => {
+                const el = document.createElement('div'); el.className = 'history-item';
+                let stressColor = 'var(--sys-green)';
+                if(task.stress === 1) stressColor = 'var(--sys-blue)';
+                if(task.stress === 2) stressColor = 'var(--sys-orange)';
+                if(task.stress === 3) stressColor = 'var(--sys-red)';
+
                 el.innerHTML = `
-                    <summary>
-                        <div style="display: flex; flex-direction: column;">
-                            <strong style="color: var(--sys-text); font-size: 16px;">${this.escapeHTML(task.title)}</strong>
-                            <span style="font-size: 13px; color: var(--sys-subtext); margin-top: 4px;">
-                                ${date} • ${durationRaw > 0 ? durationRaw+'m' : '<1m'} ${task.category ? `• ${task.category}` : ''}
-                            </span>
-                        </div>
-                        <div style="color: var(--sys-blue); font-size: 20px; font-weight: 400;">+</div>
-                    </summary>
-                    <div class="history-logs">
-                        Great job completing this task!
+                    <div>
+                        <strong style="color: var(--sys-text); font-size: 15px;">${this.escapeHTML(task.title)}</strong>
+                        <div class="meta"><span class="stress-dot" style="background:${stressColor}"></span> ${task.emo} ${task.reason ? `• Blocked by: ${task.reason}` : '• Smooth flow'}</div>
                     </div>
                 `;
-                
-                el.addEventListener('toggle', () => { el.querySelector('summary div:last-child').textContent = el.open ? '−' : '+'; });
-                this.els.historyFeed.appendChild(el);
+                histFeed.appendChild(el);
             });
         },
 
