@@ -9,6 +9,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
+    <script>
+        const manifest = {
+            "name": "FlowDeck", "short_name": "FlowDeck", "start_url": ".", "display": "standalone",
+            "background_color": "#000000", "theme_color": "#007AFF", "description": "ADHD Focus Triage"
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+        document.write(`<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
+    </script>
+
     <style>
         /* Apple-style CSS & Variables */
         :root {
@@ -24,7 +33,8 @@
             --cat-not-urgent-bg: #E3F2FD; --cat-not-urgent-text: #1976D2;
 
             --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            --safe-top: env(safe-area-inset-top, 44px); --safe-bottom: env(safe-area-inset-bottom, 34px); --tab-height: 80px;
+            --safe-top: env(safe-area-inset-top, 44px); 
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
         }
 
         @media (prefers-color-scheme: dark) {
@@ -43,38 +53,44 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
-        body { background-color: var(--sys-bg); color: var(--sys-text); overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; }
+        
+        /* 100dvh dynamically adjusts to Safari's address bar & PWA status */
+        body { background-color: #000; display: flex; justify-content: center; height: 100dvh; width: 100vw; overflow: hidden; }
 
-        /* Header */
+        /* App Frame (Centers beautifully on iPad/Desktop, fills screen on mobile) */
+        .app-frame {
+            width: 100%; max-width: 600px; height: 100%;
+            background-color: var(--sys-bg); color: var(--sys-text);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        /* Minimal Header */
         header {
-            padding-top: var(--safe-top); height: calc(44px + var(--safe-top));
-            display: flex; align-items: center; justify-content: center;
-            background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--sys-border); z-index: 100; position: relative;
+            padding: calc(var(--safe-top) + 12px) 20px 12px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--sys-bg); z-index: 100;
         }
-        .header-title { font-weight: 600; font-size: 17px; letter-spacing: -0.4px; }
+        .header-date { font-weight: 700; font-size: 22px; letter-spacing: -0.5px; color: var(--sys-text); }
         .points-badge {
-            position: absolute; right: 16px; top: calc(var(--safe-top) + 8px);
-            background: var(--sys-orange); color: white; padding: 4px 10px; border-radius: 12px;
-            font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: 0.2s;
+            background: var(--sys-orange); color: white; padding: 6px 14px; border-radius: 16px;
+            font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: 0.2s;
         }
 
-        /* Views */
-        .views-container { flex-grow: 1; position: relative; overflow: hidden; background: var(--sys-bg); }
+        /* Views Container */
+        .views-container { flex: 1; position: relative; overflow: hidden; }
         .view {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto; -webkit-overflow-scrolling: touch;
-            padding: 20px 20px calc(var(--tab-height) + var(--safe-bottom) + 20px) 20px;
+            padding: 12px 20px 120px 20px; /* Generous bottom padding to clear nav bar safely */
             opacity: 0; pointer-events: none; transform: translateX(20px);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .view.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
 
-        h1 { font-size: 34px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.8px; }
         h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.4px; }
-        h3 { font-size: 15px; font-weight: 600; color: var(--sys-subtext); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;}
+        h3 { font-size: 14px; font-weight: 600; color: var(--sys-subtext); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;}
         
-        .input-group { background: var(--sys-surface); border-radius: 16px; padding: 8px; display: flex; margin-bottom: 24px; }
+        .input-group { background: var(--sys-surface); border-radius: 16px; padding: 8px; display: flex; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         input[type="text"] { flex-grow: 1; border: none; background: transparent; padding: 12px; font-size: 17px; color: var(--sys-text); outline: none; }
 
         button.btn-primary { background: var(--sys-blue); color: white; border: none; padding: 14px 20px; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px;}
@@ -83,10 +99,9 @@
         button.btn-success { background: var(--sys-green); }
         button.btn-danger { background: var(--sys-red); }
         button.btn-ghost { background: transparent; color: var(--sys-subtext); width: 100%; padding: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
-        button.btn-ghost:active { color: var(--sys-text); }
 
         /* Triage Stack */
-        .card-stack { position: relative; height: 350px; width: 100%; margin-top: 20px; perspective: 1000px; }
+        .card-stack { position: relative; height: 350px; width: 100%; margin-top: 12px; perspective: 1000px; }
         .task-card {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--sys-surface); border-radius: 24px; padding: 32px 24px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 2px solid transparent;
@@ -95,7 +110,7 @@
         .task-card .task-title { font-size: 26px; font-weight: 700; margin-bottom: 16px; line-height: 1.2;}
         .task-card .task-hint { color: var(--sys-subtext); font-size: 13px; margin-top: auto; }
         
-        .card-delete-btn { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.05); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: var(--sys-subtext); z-index: 10; }
+        .card-delete-btn { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.05); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: var(--sys-subtext); z-index: 10; cursor: pointer;}
         .swipe-overlay { position: absolute; font-size: 24px; font-weight: 800; text-transform: uppercase; border: 3px solid; border-radius: 12px; padding: 4px 12px; opacity: 0; pointer-events: none; }
         .swipe-right-overlay { top: 24px; left: 24px; color: var(--sys-red); border-color: var(--sys-red); transform: rotate(-15deg); }
         .swipe-left-overlay { top: 24px; right: 24px; color: var(--sys-blue); border-color: var(--sys-blue); transform: rotate(15deg); }
@@ -106,13 +121,13 @@
         /* Bottom Sheets (Modals) */
         .sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
-        .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sys-surface); border-radius: 24px 24px 0 0; padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: var(--sys-surface); border-radius: 24px 24px 0 0; padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
         .bottom-sheet.active { transform: translateY(0); }
         
         /* 1-Tap Pills & Emojis */
         .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
         .pill-grid.emojis { grid-template-columns: repeat(5, 1fr); gap: 8px;}
-        .pill-btn { background: var(--sys-bg); border: 2px solid transparent; color: var(--sys-text); padding: 12px; border-radius: 16px; font-size: 15px; font-weight: 600; text-align: center; transition: 0.1s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .pill-btn { background: var(--sys-bg); border: 2px solid transparent; color: var(--sys-text); padding: 12px; border-radius: 16px; font-size: 15px; font-weight: 600; text-align: center; transition: 0.1s; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;}
         .pill-btn.emoji { font-size: 12px; padding: 12px 4px; color: var(--sys-subtext);}
         .pill-btn.emoji span { font-size: 28px; }
         .pill-btn:active, .pill-btn.selected { background: var(--sys-blue); color: white; transform: scale(0.95); }
@@ -122,7 +137,7 @@
         .pill-btn.selected.stress-3 { background: var(--sys-red); }
 
         /* Work Mode UI */
-        .active-task-banner { background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white; padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); text-align: center; position: relative;}
+        .active-task-banner { background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white; padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); text-align: center;}
         .active-task-banner.stress-2 { background: linear-gradient(135deg, var(--sys-orange), #D35400); box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);}
         .active-task-banner.stress-3 { background: linear-gradient(135deg, var(--sys-red), #C0392B); box-shadow: 0 8px 20px rgba(255, 59, 48, 0.3);}
         .active-task-banner h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px; color: white;}
@@ -140,12 +155,18 @@
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* Navigation Tab Bar */
-        .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: calc(var(--tab-height) + var(--safe-bottom)); background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--sys-border); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; padding-bottom: var(--safe-bottom); z-index: 100; }
+        /* Fluid Apple Tab Bar */
+        .tab-bar { 
+            position: absolute; bottom: 0; left: 0; right: 0; 
+            background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border-top: 1px solid var(--sys-border); display: flex; justify-content: space-around; 
+            align-items: center; z-index: 100;
+            padding-top: 12px; 
+            padding-bottom: calc(12px + var(--safe-bottom)); /* Fluid padding dynamically respects Safari Safe Area */
+        }
         .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; }
         .tab-item.active { color: var(--sys-blue); }
-        .tab-item svg { width: 28px; height: 28px; margin-bottom: 4px; stroke-width: 2;}
-        .tab-item span { font-size: 10px; font-weight: 600; }
+        .tab-item svg { width: 26px; height: 26px; margin-bottom: 4px; stroke-width: 2;}
 
         .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
@@ -153,8 +174,10 @@
 </head>
 <body>
 
+<div class="app-frame">
+    
     <header>
-        <div class="header-title" id="header-title">Inbox</div>
+        <div class="header-date" id="header-date">Today</div>
         <div class="points-badge" id="points-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             <span id="score-display">0</span>
@@ -164,7 +187,7 @@
     <div class="views-container">
         <div id="view-tasks" class="view active">
             <div class="input-group">
-                <input type="text" id="new-task-input" placeholder="Add a new task..." autocomplete="off">
+                <input type="text" id="new-task-input" placeholder="What needs doing?" autocomplete="off">
                 <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
             </div>
             
@@ -205,7 +228,6 @@
         </div>
 
         <div id="view-settings" class="view">
-            <h1>Insights</h1>
             <div style="display:flex; gap: 12px; margin-bottom: 24px;">
                 <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Score</span><strong id="stats-score" style="color: var(--sys-orange);">0</strong></div>
                 <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Tasks</span><strong id="stats-completed">0</strong></div>
@@ -218,58 +240,68 @@
             <div id="history-feed" style="margin-bottom: 24px;"></div>
             <button class="btn-ghost" id="reset-btn" style="color: var(--sys-red);">Reset All Data</button>
         </div>
-    </div>
 
-    <div class="sheet-overlay" id="sheet-overlay"></div>
-    <div class="bottom-sheet" id="preflight-sheet">
-        <h2 style="text-align: center;">How does this feel?</h2>
-        <div class="pill-grid emojis" id="emotion-grid">
-            <div class="pill-btn emoji" data-stress="0" data-emo="🔥"><span>🔥</span>Excited</div>
-            <div class="pill-btn emoji" data-stress="0" data-emo="😌"><span>😌</span>Calm</div>
-            <div class="pill-btn emoji" data-stress="1" data-emo="😐"><span>😐</span>Neutral</div>
-            <div class="pill-btn emoji" data-stress="2" data-emo="😣"><span>😣</span>Stressed</div>
-            <div class="pill-btn emoji" data-stress="3" data-emo="😨"><span>😨</span>Avoiding</div>
-        </div>
-
-        <div id="intervention-zone" style="display: none; animation: floatUp 0.3s forwards;">
-            <hr style="border: 0; height: 1px; background: var(--sys-border); margin: 20px 0;">
-            <h3>Why blocked?</h3>
-            <div class="pill-grid" id="block-reason-grid">
-                <div class="pill-btn reason" data-val="Unclear">🌫 Unclear</div>
-                <div class="pill-btn reason" data-val="Too Big">🏔 Too Big</div>
-                <div class="pill-btn reason" data-val="Boring">🥱 Boring</div>
-                <div class="pill-btn reason" data-val="Fear">😨 Fear</div>
+        <div class="sheet-overlay" id="sheet-overlay"></div>
+        <div class="bottom-sheet" id="preflight-sheet">
+            <h2 style="text-align: center;">How does this feel?</h2>
+            <div class="pill-grid emojis" id="emotion-grid">
+                <div class="pill-btn emoji" data-stress="0" data-emo="🔥"><span>🔥</span>Excited</div>
+                <div class="pill-btn emoji" data-stress="0" data-emo="😌"><span>😌</span>Calm</div>
+                <div class="pill-btn emoji" data-stress="1" data-emo="😐"><span>😐</span>Neutral</div>
+                <div class="pill-btn emoji" data-stress="2" data-emo="😣"><span>😣</span>Stressed</div>
+                <div class="pill-btn emoji" data-stress="3" data-emo="😨"><span>😨</span>Avoiding</div>
             </div>
 
-            <h3>Action Required</h3>
-            <button class="btn-primary btn-block" id="action-2min" style="background: var(--sys-purple);">Do 2-Minute Version</button>
-            <button class="btn-primary btn-block" id="action-break" style="background: var(--sys-blue);">Break into Smaller Step</button>
-            <button class="btn-primary btn-block" id="action-delay" style="background: var(--sys-surface); color: var(--sys-text); border: 1px solid var(--sys-border);">Delay Intentionally</button>
+            <div id="intervention-zone" style="display: none; animation: floatUp 0.3s forwards;">
+                <hr style="border: 0; height: 1px; background: var(--sys-border); margin: 20px 0;">
+                <h3>Why blocked?</h3>
+                <div class="pill-grid" id="block-reason-grid">
+                    <div class="pill-btn reason" data-val="Unclear">🌫 Unclear</div>
+                    <div class="pill-btn reason" data-val="Too Big">🏔 Too Big</div>
+                    <div class="pill-btn reason" data-val="Boring">🥱 Boring</div>
+                    <div class="pill-btn reason" data-val="Fear">😨 Fear</div>
+                </div>
+
+                <div style="height:12px;"></div>
+                <button class="btn-primary btn-block" id="action-2min" style="background: var(--sys-purple);">Do 2-Minute Version</button>
+                <button class="btn-primary btn-block" id="action-break" style="background: var(--sys-blue);">Break into Smaller Step</button>
+                <button class="btn-primary btn-block" id="action-delay" style="background: var(--sys-surface); color: var(--sys-text); border: 1px solid var(--sys-border);">Delay Intentionally</button>
+            </div>
         </div>
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" data-target="view-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Inbox</span></div>
-        <div class="tab-item" data-target="view-work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg><span>Focus</span></div>
-        <div class="tab-item" data-target="view-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Profile</span></div>
+        <div class="tab-item active" data-target="view-tasks">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="tab-item" data-target="view-work">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+        </div>
+        <div class="tab-item" data-target="view-settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
     </nav>
+
+</div>
 
 <script>
     const App = {
         state: { tasks: [], activeTask: null, history: [], points: 0 },
-        timerInterval: null,
-        pendingTaskId: null,
+        timerInterval: null, pendingTaskId: null,
         preflightData: { stress: 0, emo: '', reason: '' },
 
         els: {
             views: document.querySelectorAll('.view'), tabs: document.querySelectorAll('.tab-item'),
-            scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
+            headerDate: document.getElementById('header-date'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
             taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'),
             workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'), activeBanner: document.getElementById('active-banner'), liveTimer: document.getElementById('live-timer'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
             sheetOverlay: document.getElementById('sheet-overlay'), preflightSheet: document.getElementById('preflight-sheet'), emotionGrid: document.getElementById('emotion-grid'), interventionZone: document.getElementById('intervention-zone'), blockReasonGrid: document.getElementById('block-reason-grid')
         },
 
         init() {
+            // Set dynamic date in minimal header
+            this.els.headerDate.textContent = new Intl.DateTimeFormat('en-US', {weekday: 'long', month: 'short', day: 'numeric'}).format(new Date());
+            
             this.loadState(); this.bindEvents(); this.updateUI(); this.renderTasks();
             if(this.state.activeTask) {
                 const workTab = document.querySelector('.tab-item[data-target="view-work"]');
@@ -287,7 +319,6 @@
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
             
-            // Work Mode Distractions
             document.querySelectorAll('.log-distraction').forEach(btn => btn.addEventListener('click', (e) => {
                 this.vibrate(30);
                 if(this.state.activeTask) {
@@ -300,10 +331,8 @@
             this.els.abandonBtn.addEventListener('click', () => this.abandonTask());
             document.getElementById('reset-btn').addEventListener('click', () => { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } });
             
-            // Sheet close
             this.els.sheetOverlay.addEventListener('click', () => this.closeSheet());
 
-            // Emotion Preflight
             this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', (e) => {
                 this.vibrate(20);
                 this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', `stress-${b.dataset.stress}`));
@@ -312,14 +341,10 @@
                 this.preflightData.stress = parseInt(btn.dataset.stress);
                 this.preflightData.emo = btn.dataset.emo;
                 
-                if (this.preflightData.stress >= 2) {
-                    this.els.interventionZone.style.display = 'block';
-                } else {
-                    this.launchTask(null); // Launch immediately if chill
-                }
+                if (this.preflightData.stress >= 2) this.els.interventionZone.style.display = 'block';
+                else this.launchTask(null);
             }));
 
-            // Block Reasons
             this.els.blockReasonGrid.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', (e) => {
                 this.vibrate(20);
                 this.els.blockReasonGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', 'stress-1'));
@@ -327,12 +352,11 @@
                 this.preflightData.reason = btn.dataset.val;
             }));
 
-            // Interventions
             document.getElementById('action-2min').addEventListener('click', () => this.launchTask('2min'));
             document.getElementById('action-delay').addEventListener('click', () => {
                 this.vibrate(50);
                 const t = this.state.tasks.find(x => x.id === this.pendingTaskId);
-                if(t) t.delayed = true; // Mark as delayed
+                if(t) t.delayed = true;
                 this.saveState(); this.renderTasks(); this.closeSheet();
             });
             document.getElementById('action-break').addEventListener('click', () => {
@@ -347,13 +371,10 @@
 
         switchTab(targetId, tabEl) {
             if (targetId === 'view-tasks' && this.state.activeTask) {
-                alert("You have an active task. Focus!");
-                return;
+                alert("You have an active task. Focus!"); return;
             }
             this.els.tabs.forEach(t => t.classList.remove('active')); tabEl.classList.add('active');
             this.els.views.forEach(v => v.classList.remove('active')); document.getElementById(targetId).classList.add('active');
-            const titles = { 'view-tasks': 'Inbox', 'view-work': 'Focus', 'view-settings': 'Profile' };
-            document.getElementById('header-title').textContent = titles[targetId];
             
             if(targetId === 'view-tasks') this.renderTasks();
             if(targetId === 'view-work') this.renderWorkView();
@@ -365,10 +386,22 @@
             this.state.points += amount; this.saveState();
             this.els.pointsBadge.style.transform = 'scale(1.2)'; setTimeout(() => this.els.pointsBadge.style.transform = 'scale(1)', 200);
             const floater = document.createElement('div'); floater.className = 'floating-score'; floater.textContent = `+${amount}`;
-            let x = window.innerWidth / 2, y = window.innerHeight / 2;
-            if (e && e.changedTouches) { x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; }
-            else if (e && e.clientX) { x = e.clientX; y = e.clientY; }
-            floater.style.left = `${x}px`; floater.style.top = `${y}px`; document.body.appendChild(floater);
+            
+            // Default center if no event coordinates
+            let x = window.innerWidth / 2; let y = window.innerHeight / 2;
+            
+            // Constrain coordinates to not overflow
+            if (e && e.changedTouches && e.changedTouches.length > 0) { 
+                x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; 
+            } else if (e && e.touches && e.touches.length > 0) { 
+                x = e.touches[0].clientX; y = e.touches[0].clientY; 
+            } else if (e && e.clientX) { 
+                x = e.clientX; y = e.clientY; 
+            }
+            
+            floater.style.left = `${Math.min(x, window.innerWidth - 40)}px`; 
+            floater.style.top = `${y}px`; 
+            document.body.appendChild(floater);
             setTimeout(() => floater.remove(), 1000);
         },
 
@@ -429,7 +462,8 @@
 
         initSwipeLogic(card, taskId) {
             let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false, moved = false;
-            const threshold = window.innerWidth * 0.25;
+            // Bound relative to the app frame, not the whole window, for desktop compatibility
+            const threshold = Math.min(window.innerWidth, 600) * 0.25;
             const overlays = { r: card.querySelector('.swipe-right-overlay'), l: card.querySelector('.swipe-left-overlay'), u: card.querySelector('.swipe-up-overlay'), d: card.querySelector('.swipe-down-overlay') };
 
             card.addEventListener('touchstart', (e) => { 
@@ -582,7 +616,6 @@
             document.getElementById('stats-score').textContent = this.state.points; 
             document.getElementById('stats-completed').textContent = this.state.history.length;
             
-            // Patterns
             const patterns = document.getElementById('pattern-feed');
             const highStressTasks = this.state.history.filter(h => h.stress >= 2);
             if (highStressTasks.length > 0) {
@@ -593,7 +626,6 @@
                 patterns.innerHTML = "No high-stress patterns detected yet. Keep flowing!";
             }
 
-            // History
             const histFeed = document.getElementById('history-feed');
             histFeed.innerHTML = '';
             if(this.state.history.length === 0) { histFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 14px; text-align: center;">No history yet.</p>'; return; }
