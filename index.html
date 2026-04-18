@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>FlowDeck</title>
+    <title>FlowDeck Pro</title>
     <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,12 +17,7 @@
             "display": "standalone",
             "background_color": "#000000",
             "theme_color": "#007AFF",
-            "description": "Gamified interstitial journaling with Apple-style UX.",
-            "icons": [{
-                "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22.5' fill='%23007AFF'/><path d='M30 50 L45 65 L70 35' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
-                "sizes": "192x192",
-                "type": "image/svg+xml"
-            }]
+            "description": "Gamified interstitial journaling with Apple-style UX."
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
         document.write(`<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
@@ -35,6 +30,7 @@
             --sys-green: #34C759;
             --sys-red: #FF3B30;
             --sys-orange: #FF9500;
+            --sys-purple: #AF52DE;
             --sys-bg: #F2F2F7;
             --sys-surface: #FFFFFF;
             --sys-text: #000000;
@@ -54,6 +50,7 @@
                 --sys-green: #30D158;
                 --sys-red: #FF453A;
                 --sys-orange: #FF9F0A;
+                --sys-purple: #BF5AF2;
                 --sys-bg: #000000;
                 --sys-surface: #1C1C1E;
                 --sys-text: #FFFFFF;
@@ -63,280 +60,120 @@
             }
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            font-family: var(--font-stack);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
 
         body {
-            background-color: var(--sys-bg);
-            color: var(--sys-text);
-            overflow: hidden; /* Prevent pull-to-refresh & scrolling on body */
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
+            background-color: var(--sys-bg); color: var(--sys-text); overflow: hidden;
+            height: 100vh; width: 100vw; display: flex; flex-direction: column;
         }
 
-        /* Top Header */
+        /* Header */
         header {
-            padding-top: var(--safe-top);
-            height: calc(44px + var(--safe-top));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--sys-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--sys-border);
-            z-index: 100;
-            position: relative;
+            padding-top: var(--safe-top); height: calc(44px + var(--safe-top));
+            display: flex; align-items: center; justify-content: center;
+            background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--sys-border); z-index: 100; position: relative;
         }
-        
-        .header-title {
-            font-weight: 600;
-            font-size: 17px;
-            letter-spacing: -0.4px;
-        }
-
+        .header-title { font-weight: 600; font-size: 17px; letter-spacing: -0.4px; }
         .points-badge {
-            position: absolute;
-            right: 16px;
-            top: calc(var(--safe-top) + 8px);
-            background: var(--sys-orange);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.3);
+            position: absolute; right: 16px; top: calc(var(--safe-top) + 8px);
+            background: var(--sys-orange); color: white; padding: 4px 10px; border-radius: 12px;
+            font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 4px;
             transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* Main Content Views */
-        .views-container {
-            flex-grow: 1;
-            position: relative;
-            overflow: hidden;
-            background: var(--sys-bg);
-        }
-
+        /* Views */
+        .views-container { flex-grow: 1; position: relative; overflow: hidden; background: var(--sys-bg); }
         .view {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
             padding: 20px 20px calc(var(--tab-height) + var(--safe-bottom) + 20px) 20px;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateX(20px);
+            opacity: 0; pointer-events: none; transform: translateX(20px);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        .view.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
 
-        .view.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(0);
-        }
-
-        /* Typography & Components */
+        /* Typography & Forms */
         h1 { font-size: 34px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.8px; }
         h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.4px; }
         
-        .input-group {
-            background: var(--sys-surface);
-            border-radius: 16px;
-            padding: 8px;
-            display: flex;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-            margin-bottom: 24px;
-        }
-        
-        input[type="text"], textarea {
-            flex-grow: 1;
-            border: none;
-            background: transparent;
-            padding: 12px;
-            font-size: 17px;
-            color: var(--sys-text);
-            outline: none;
-        }
-        textarea {
-            resize: none;
-            min-height: 100px;
-            width: 100%;
-        }
+        .input-group { background: var(--sys-surface); border-radius: 16px; padding: 8px; display: flex; margin-bottom: 24px; }
+        input[type="text"], textarea { flex-grow: 1; border: none; background: transparent; padding: 12px; font-size: 17px; color: var(--sys-text); outline: none; }
+        textarea { resize: none; min-height: 80px; width: 100%; }
 
         button.btn-primary {
-            background: var(--sys-blue);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.1s;
+            background: var(--sys-blue); color: white; border: none; padding: 12px 20px;
+            border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: transform 0.1s, opacity 0.1s;
         }
         button.btn-primary:active { transform: scale(0.96); opacity: 0.9; }
-
         button.btn-block { width: 100%; padding: 16px; border-radius: 14px; margin-bottom: 16px; }
-        button.btn-success { background: var(--sys-green); color: white; }
-        button.btn-danger { background: var(--sys-red); color: white; }
+        button.btn-success { background: var(--sys-green); }
+        button.btn-danger { background: var(--sys-red); }
+        button.btn-ghost { background: transparent; color: var(--sys-red); width: 100%; padding: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
 
-        /* Tinder-like Task Stack */
-        .card-stack {
-            position: relative;
-            height: 350px;
-            width: 100%;
-            margin-top: 20px;
-            perspective: 1000px;
+        /* Tag Selector */
+        .tag-selector { display: flex; gap: 8px; margin-bottom: 12px; padding: 0 12px; overflow-x: auto;}
+        .tag-btn { 
+            background: var(--sys-bg); border: 1px solid var(--sys-border); color: var(--sys-subtext); 
+            padding: 6px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; 
         }
+        .tag-btn.active[data-tag="Distraction"] { background: var(--sys-orange); color: white; border-color: var(--sys-orange); }
+        .tag-btn.active[data-tag="Idea"] { background: var(--sys-purple); color: white; border-color: var(--sys-purple); }
+        .tag-btn.active[data-tag="Note"] { background: var(--sys-blue); color: white; border-color: var(--sys-blue); }
 
+        /* Tinder-like Stack */
+        .card-stack { position: relative; height: 350px; width: 100%; margin-top: 20px; perspective: 1000px; }
         .task-card {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--sys-surface);
-            border-radius: 24px;
-            padding: 32px 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            transform-origin: 50% 100%;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            will-change: transform;
-            user-select: none;
-            touch-action: pan-y; /* Allow vertical scroll, hijack horizontal */
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--sys-surface); border-radius: 24px; padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            transform-origin: 50% 100%; will-change: transform; user-select: none; touch-action: pan-y;
         }
-        
-        .task-card .task-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-        
-        .task-card .task-hint {
-            color: var(--sys-subtext);
-            font-size: 15px;
-        }
+        .task-card .task-title { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+        .task-card .task-hint { color: var(--sys-subtext); font-size: 15px; }
 
-        .swipe-overlay {
-            position: absolute;
-            top: 24px;
-            font-size: 32px;
-            font-weight: 800;
-            text-transform: uppercase;
-            border: 4px solid;
-            border-radius: 12px;
-            padding: 4px 12px;
-            opacity: 0;
-        }
+        .swipe-overlay { position: absolute; top: 24px; font-size: 32px; font-weight: 800; text-transform: uppercase; border: 4px solid; border-radius: 12px; padding: 4px 12px; opacity: 0; }
         .swipe-right-overlay { right: 24px; color: var(--sys-green); border-color: var(--sys-green); transform: rotate(15deg); }
         .swipe-left-overlay { left: 24px; color: var(--sys-red); border-color: var(--sys-red); transform: rotate(-15deg); }
 
-        .empty-stack {
-            text-align: center;
-            color: var(--sys-subtext);
-            padding-top: 100px;
-        }
+        .empty-stack { text-align: center; color: var(--sys-subtext); padding-top: 100px; }
 
         /* Work Mode UI */
         .active-task-banner {
-            background: linear-gradient(135deg, var(--sys-blue), #5E5CE6);
-            color: white;
-            padding: 24px;
-            border-radius: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+            background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white;
+            padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
         }
         .active-task-banner h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px;}
-        .active-task-banner h2 { font-size: 28px; margin: 0; }
+        .active-task-banner h2 { font-size: 26px; margin: 0 0 16px 0; font-weight: 700;}
+        .live-timer { font-size: 36px; font-variant-numeric: tabular-nums; font-weight: 800; font-family: monospace; background: rgba(0,0,0,0.2); padding: 8px 20px; border-radius: 16px; }
 
         .journal-feed { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
-        .journal-entry {
-            background: var(--sys-surface);
-            padding: 16px;
-            border-radius: 16px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        }
-        .journal-entry .time { font-size: 13px; color: var(--sys-subtext); margin-bottom: 4px; font-weight: 600;}
+        .journal-entry { background: var(--sys-surface); padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px;}
+        .journal-entry .meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--sys-subtext); font-weight: 600;}
+        .entry-tag { padding: 2px 8px; border-radius: 8px; font-size: 11px; color: white; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* Bottom Navigation Tab Bar */
+        /* Navigation Tab Bar */
         .tab-bar {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: calc(var(--tab-height) + var(--safe-bottom));
-            background: var(--sys-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--sys-border);
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            padding-top: 12px;
-            padding-bottom: var(--safe-bottom);
-            z-index: 100;
+            position: absolute; bottom: 0; left: 0; right: 0; height: calc(var(--tab-height) + var(--safe-bottom));
+            background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--sys-border); display: flex; justify-content: space-around;
+            align-items: flex-start; padding-top: 12px; padding-bottom: var(--safe-bottom); z-index: 100;
         }
-
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--sys-subtext);
-            text-decoration: none;
-            width: 33%;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; }
         .tab-item.active { color: var(--sys-blue); }
         .tab-item svg { width: 28px; height: 28px; margin-bottom: 4px; stroke-width: 2;}
         .tab-item span { font-size: 10px; font-weight: 600; }
 
-        /* Floating Score Animation */
-        .floating-score {
-            position: fixed;
-            color: var(--sys-orange);
-            font-weight: 800;
-            font-size: 24px;
-            pointer-events: none;
-            z-index: 1000;
-            animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 0; transform: translateY(20px) scale(0.8); }
-            20% { opacity: 1; transform: translateY(0) scale(1.1); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1); }
-        }
+        /* Floater */
+        .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
 
         /* Settings List */
-        .list-group {
-            background: var(--sys-surface);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-        .list-item {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--sys-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .list-group { background: var(--sys-surface); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+        .list-item { padding: 16px 20px; border-bottom: 1px solid var(--sys-border); display: flex; justify-content: space-between; align-items: center; }
         .list-item:last-child { border-bottom: none; }
-        .list-item .value { color: var(--sys-subtext); }
-
     </style>
 </head>
 <body>
@@ -353,23 +190,16 @@
         
         <div id="view-tasks" class="view active">
             <h1>Inbox</h1>
-            
             <div class="input-group">
                 <input type="text" id="new-task-input" placeholder="Add a new task..." autocomplete="off">
                 <button class="btn-primary" id="add-task-btn">+</button>
             </div>
-
             <div id="active-task-warning" style="display: none; text-align: center; color: var(--sys-orange); padding: 20px; background: var(--sys-surface); border-radius: 16px;">
-                You have an ongoing task. Finish it in Work Mode before starting a new one.
+                You have an ongoing task. Finish or abandon it in Work Mode before starting a new one.
             </div>
-
-            <div class="card-stack" id="card-stack">
-                </div>
-            
+            <div class="card-stack" id="card-stack"></div>
             <div id="empty-stack-msg" class="empty-stack">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 <p>All caught up!</p>
             </div>
         </div>
@@ -377,462 +207,257 @@
         <div id="view-work" class="view">
             <div id="work-content">
                 <div class="active-task-banner">
-                    <h3>Current Focus</h3>
+                    <h3>Focusing On</h3>
                     <h2 id="active-task-title">Task Name</h2>
+                    <div class="live-timer" id="live-timer">00:00</div>
                 </div>
 
                 <h2>Mind Dump</h2>
                 <div class="input-group" style="flex-direction: column; padding: 12px; border-radius: 20px;">
-                    <textarea id="journal-input" placeholder="What's distracting you right now? Write it out to let it go..."></textarea>
+                    <div class="tag-selector" id="tag-selector">
+                        <button class="tag-btn active" data-tag="Distraction">Distraction</button>
+                        <button class="tag-btn" data-tag="Idea">Idea</button>
+                        <button class="tag-btn" data-tag="Note">Note</button>
+                    </div>
+                    <textarea id="journal-input" placeholder="Get it out of your head..."></textarea>
                     <button class="btn-primary btn-block" style="margin-bottom: 0;" id="log-btn">Log Thought (+5 pts)</button>
                 </div>
 
-                <div class="journal-feed" id="journal-feed">
-                    </div>
+                <div class="journal-feed" id="journal-feed"></div>
 
                 <div style="height: 24px;"></div>
                 <button class="btn-primary btn-block btn-success" id="complete-btn">Complete Task (+50 pts)</button>
+                <button class="btn-ghost" id="abandon-btn">Abandon Task</button>
             </div>
             
             <div id="no-work-content" class="empty-stack">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);">
-                    <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 <p>No active task.</p>
-                <p style="font-size: 14px; margin-top: 8px;">Go to Tasks and swipe right to start focusing.</p>
             </div>
         </div>
 
         <div id="view-settings" class="view">
             <h1>Profile</h1>
-            
             <h2>Stats</h2>
             <div class="list-group">
-                <div class="list-item">
-                    <span>Total Score</span>
-                    <strong class="value" id="stats-score" style="color: var(--sys-orange);">0 pts</strong>
-                </div>
-                <div class="list-item">
-                    <span>Tasks Completed</span>
-                    <span class="value" id="stats-completed">0</span>
-                </div>
+                <div class="list-item"><span>Total Score</span><strong class="value" id="stats-score" style="color: var(--sys-orange);">0 pts</strong></div>
+                <div class="list-item"><span>Tasks Completed</span><span class="value" id="stats-completed">0</span></div>
             </div>
-
             <h2>History</h2>
-            <div id="history-feed" style="margin-bottom: 24px;">
-                </div>
-
+            <div id="history-feed" style="margin-bottom: 24px;"></div>
             <button class="btn-primary btn-block btn-danger" id="reset-btn">Reset All Data</button>
         </div>
 
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" data-target="view-tasks">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <span>Tasks</span>
-        </div>
-        <div class="tab-item" data-target="view-work">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            <span>Work</span>
-        </div>
-        <div class="tab-item" data-target="view-settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span>Profile</span>
-        </div>
+        <div class="tab-item active" data-target="view-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Tasks</span></div>
+        <div class="tab-item" data-target="view-work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg><span>Work</span></div>
+        <div class="tab-item" data-target="view-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Profile</span></div>
     </nav>
 
 <script>
-    /**
-     * FlowDeck App Logic
-     * Vanilla JS, LocalStorage, Custom Swipe Gestures
-     */
     const App = {
-        state: {
-            tasks: [], // { id, title }
-            activeTask: null, // { id, title, startTime, entries: [] }
-            history: [],
-            points: 0
-        },
+        state: { tasks: [], activeTask: null, history: [], points: 0 },
+        timerInterval: null,
+        activeTag: 'Distraction',
+        tagColors: { 'Distraction': 'var(--sys-orange)', 'Idea': 'var(--sys-purple)', 'Note': 'var(--sys-blue)' },
 
         els: {
-            views: document.querySelectorAll('.view'),
-            tabs: document.querySelectorAll('.tab-item'),
-            headerTitle: document.getElementById('header-title'),
-            scoreDisplay: document.getElementById('score-display'),
-            pointsBadge: document.getElementById('points-badge'),
-            
-            // Tasks
-            taskInput: document.getElementById('new-task-input'),
-            addTaskBtn: document.getElementById('add-task-btn'),
-            cardStack: document.getElementById('card-stack'),
-            emptyStackMsg: document.getElementById('empty-stack-msg'),
-            activeTaskWarning: document.getElementById('active-task-warning'),
-            
-            // Work
-            workContent: document.getElementById('work-content'),
-            noWorkContent: document.getElementById('no-work-content'),
-            activeTaskTitle: document.getElementById('active-task-title'),
-            journalInput: document.getElementById('journal-input'),
-            logBtn: document.getElementById('log-btn'),
-            journalFeed: document.getElementById('journal-feed'),
-            completeBtn: document.getElementById('complete-btn'),
-            
-            // Settings
-            statsScore: document.getElementById('stats-score'),
-            statsCompleted: document.getElementById('stats-completed'),
-            historyFeed: document.getElementById('history-feed'),
-            resetBtn: document.getElementById('reset-btn')
+            views: document.querySelectorAll('.view'), tabs: document.querySelectorAll('.tab-item'),
+            headerTitle: document.getElementById('header-title'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
+            taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'), activeTaskWarning: document.getElementById('active-task-warning'),
+            workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'),
+            liveTimer: document.getElementById('live-timer'), tagBtns: document.querySelectorAll('.tag-btn'), journalInput: document.getElementById('journal-input'), logBtn: document.getElementById('log-btn'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
+            statsScore: document.getElementById('stats-score'), statsCompleted: document.getElementById('stats-completed'), historyFeed: document.getElementById('history-feed'), resetBtn: document.getElementById('reset-btn')
         },
 
         init() {
-            this.loadState();
-            this.bindEvents();
-            this.updateUI();
-            this.renderTasks();
+            this.loadState(); this.bindEvents(); this.updateUI(); this.renderTasks();
+            if(this.state.activeTask) this.startTimerDisplay();
         },
 
-        loadState() {
-            const saved = localStorage.getItem('flowdeck_state');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    this.state = { ...this.state, ...parsed };
-                } catch(e) { console.error(e); }
-            }
-        },
+        vibrate(ms = 50) { if (navigator.vibrate) navigator.vibrate(ms); },
 
-        saveState() {
-            localStorage.setItem('flowdeck_state', JSON.stringify(this.state));
-            this.updateUI();
-        },
+        loadState() { const saved = localStorage.getItem('flowdeck_state'); if (saved) { try { this.state = { ...this.state, ...JSON.parse(saved) }; } catch(e) {} } },
+        saveState() { localStorage.setItem('flowdeck_state', JSON.stringify(this.state)); this.updateUI(); },
 
         bindEvents() {
-            // Navigation
-            this.els.tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    this.switchTab(tab.dataset.target, tab);
-                });
-            });
-
-            // Tasks
+            this.els.tabs.forEach(tab => tab.addEventListener('click', () => { this.vibrate(20); this.switchTab(tab.dataset.target, tab); }));
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
+            
+            this.els.tagBtns.forEach(btn => btn.addEventListener('click', (e) => {
+                this.vibrate(20);
+                this.els.tagBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.activeTag = e.target.dataset.tag;
+            }));
 
-            // Work
-            this.els.logBtn.addEventListener('click', () => this.logJournal());
-            this.els.completeBtn.addEventListener('click', () => this.completeTask());
-
-            // Settings
-            this.els.resetBtn.addEventListener('click', () => {
-                if(confirm("Erase all data and score?")) {
-                    localStorage.removeItem('flowdeck_state');
-                    location.reload();
-                }
-            });
+            this.els.logBtn.addEventListener('click', (e) => this.logJournal(e));
+            this.els.completeBtn.addEventListener('click', (e) => this.completeTask(e));
+            this.els.abandonBtn.addEventListener('click', () => { if(confirm("Abandon this task? It will return to your inbox.")) this.abandonTask(); });
+            this.els.resetBtn.addEventListener('click', () => { if(confirm("Erase all data?")) { localStorage.removeItem('flowdeck_state'); location.reload(); } });
         },
 
         switchTab(targetId, tabEl) {
-            this.els.tabs.forEach(t => t.classList.remove('active'));
-            tabEl.classList.add('active');
-
-            this.els.views.forEach(v => v.classList.remove('active'));
-            document.getElementById(targetId).classList.add('active');
-
+            this.els.tabs.forEach(t => t.classList.remove('active')); tabEl.classList.add('active');
+            this.els.views.forEach(v => v.classList.remove('active')); document.getElementById(targetId).classList.add('active');
             const titles = { 'view-tasks': 'Tasks', 'view-work': 'Work Mode', 'view-settings': 'Profile' };
             this.els.headerTitle.textContent = titles[targetId];
-
             if(targetId === 'view-tasks') this.renderTasks();
             if(targetId === 'view-work') this.renderWorkView();
             if(targetId === 'view-settings') this.renderSettings();
         },
 
-        updateUI() {
-            this.els.scoreDisplay.textContent = this.state.points;
-        },
+        updateUI() { this.els.scoreDisplay.textContent = this.state.points; },
 
         awardPoints(amount, e) {
-            this.state.points += amount;
-            this.saveState();
-            
-            // Pop badge
-            this.els.pointsBadge.style.transform = 'scale(1.2)';
-            setTimeout(() => this.els.pointsBadge.style.transform = 'scale(1)', 200);
-
-            // Floating text at event location or center
-            const floater = document.createElement('div');
-            floater.className = 'floating-score';
-            floater.textContent = `+${amount}`;
-            
-            let x = window.innerWidth / 2;
-            let y = window.innerHeight / 2;
-            if (e && e.touches) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
-            else if (e && e.clientX) { x = e.clientX; y = e.clientY; }
-            
-            floater.style.left = `${x}px`;
-            floater.style.top = `${y}px`;
-            document.body.appendChild(floater);
-            
+            this.state.points += amount; this.saveState();
+            this.els.pointsBadge.style.transform = 'scale(1.2)'; setTimeout(() => this.els.pointsBadge.style.transform = 'scale(1)', 200);
+            const floater = document.createElement('div'); floater.className = 'floating-score'; floater.textContent = `+${amount}`;
+            let x = window.innerWidth / 2, y = window.innerHeight / 2;
+            if (e && e.touches) { x = e.touches[0].clientX; y = e.touches[0].clientY; } else if (e && e.clientX) { x = e.clientX; y = e.clientY; }
+            floater.style.left = `${x}px`; floater.style.top = `${y}px`; document.body.appendChild(floater);
             setTimeout(() => floater.remove(), 1000);
         },
 
-        // --- TASKS LOGIC ---
+        /* TASKS */
         addTask() {
-            const title = this.els.taskInput.value.trim();
-            if(!title) return;
-
+            const title = this.els.taskInput.value.trim(); if(!title) return;
             this.state.tasks.unshift({ id: Date.now().toString(), title });
-            this.els.taskInput.value = '';
-            this.els.taskInput.blur();
-            this.saveState();
-            this.renderTasks();
+            this.els.taskInput.value = ''; this.els.taskInput.blur();
+            this.saveState(); this.renderTasks();
         },
 
         renderTasks() {
             this.els.cardStack.innerHTML = '';
-            
             if (this.state.activeTask) {
-                this.els.cardStack.style.display = 'none';
-                this.els.emptyStackMsg.style.display = 'none';
-                this.els.activeTaskWarning.style.display = 'block';
-                return;
+                this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'none'; this.els.activeTaskWarning.style.display = 'block'; return;
             }
-
             this.els.activeTaskWarning.style.display = 'none';
-
             if (this.state.tasks.length === 0) {
-                this.els.cardStack.style.display = 'none';
-                this.els.emptyStackMsg.style.display = 'block';
-                return;
+                this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'block'; return;
             }
-
-            this.els.cardStack.style.display = 'block';
-            this.els.emptyStackMsg.style.display = 'none';
-
-            // Render up to 3 cards for the stack effect
+            this.els.cardStack.style.display = 'block'; this.els.emptyStackMsg.style.display = 'none';
             const displayTasks = this.state.tasks.slice(0, 3).reverse();
-            
             displayTasks.forEach((task, index) => {
                 const isTopCard = index === displayTasks.length - 1;
-                const zIndex = index;
-                const scale = 1 - ((displayTasks.length - 1 - index) * 0.05);
-                const translateY = (displayTasks.length - 1 - index) * 15;
-
-                const card = document.createElement('div');
-                card.className = 'task-card';
-                card.style.zIndex = zIndex;
-                card.style.transform = `translateY(${translateY}px) scale(${scale})`;
-                
-                card.innerHTML = `
-                    <div class="swipe-overlay swipe-left-overlay">Skip</div>
-                    <div class="swipe-overlay swipe-right-overlay">Start</div>
-                    <div class="task-title">${this.escapeHTML(task.title)}</div>
-                    <div class="task-hint">Swipe Right to Start • Swipe Left to Delete</div>
-                `;
-
-                if (isTopCard) {
-                    this.initSwipeLogic(card, task.id);
-                }
-                
+                const card = document.createElement('div'); card.className = 'task-card';
+                card.style.zIndex = index; card.style.transform = `translateY(${(displayTasks.length - 1 - index) * 15}px) scale(${1 - ((displayTasks.length - 1 - index) * 0.05)})`;
+                card.innerHTML = `<div class="swipe-overlay swipe-left-overlay">Skip</div><div class="swipe-overlay swipe-right-overlay">Start</div><div class="task-title">${this.escapeHTML(task.title)}</div><div class="task-hint">Swipe Right to Start • Swipe Left to Delete</div>`;
+                if (isTopCard) this.initSwipeLogic(card, task.id);
                 this.els.cardStack.appendChild(card);
             });
         },
 
         initSwipeLogic(card, taskId) {
-            let startX = 0;
-            let currentX = 0;
-            let isDragging = false;
-            const threshold = window.innerWidth * 0.3; // 30% of screen to trigger
-
-            const rightOverlay = card.querySelector('.swipe-right-overlay');
-            const leftOverlay = card.querySelector('.swipe-left-overlay');
-
-            const onTouchStart = (e) => {
-                startX = e.touches[0].clientX;
-                isDragging = true;
-                card.style.transition = 'none';
-            };
-
-            const onTouchMove = (e) => {
-                if(!isDragging) return;
-                currentX = e.touches[0].clientX - startX;
-                const rotation = currentX * 0.05;
-                card.style.transform = `translateX(${currentX}px) rotate(${rotation}deg)`;
-                
-                // Opacity of overlays
-                if (currentX > 0) {
-                    rightOverlay.style.opacity = Math.min(currentX / threshold, 1);
-                    leftOverlay.style.opacity = 0;
-                } else {
-                    leftOverlay.style.opacity = Math.min(Math.abs(currentX) / threshold, 1);
-                    rightOverlay.style.opacity = 0;
-                }
-            };
-
-            const onTouchEnd = (e) => {
-                if(!isDragging) return;
-                isDragging = false;
-                card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-
+            let startX = 0, currentX = 0, isDragging = false; const threshold = window.innerWidth * 0.3;
+            const rightOverlay = card.querySelector('.swipe-right-overlay'), leftOverlay = card.querySelector('.swipe-left-overlay');
+            card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; card.style.transition = 'none'; }, {passive: true});
+            card.addEventListener('touchmove', e => {
+                if(!isDragging) return; currentX = e.touches[0].clientX - startX;
+                card.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.05}deg)`;
+                if (currentX > 0) { rightOverlay.style.opacity = Math.min(currentX / threshold, 1); leftOverlay.style.opacity = 0; } 
+                else { leftOverlay.style.opacity = Math.min(Math.abs(currentX) / threshold, 1); rightOverlay.style.opacity = 0; }
+            }, {passive: true});
+            card.addEventListener('touchend', e => {
+                if(!isDragging) return; isDragging = false; card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (currentX > threshold) {
-                    // Swipe Right (Start)
-                    card.style.transform = `translateX(${window.innerWidth}px) rotate(30deg)`;
-                    card.style.opacity = 0;
-                    setTimeout(() => this.startFocusedTask(taskId, e), 300);
+                    card.style.transform = `translateX(${window.innerWidth}px) rotate(30deg)`; card.style.opacity = 0;
+                    setTimeout(() => { this.vibrate([30, 50, 30]); this.startTask(taskId, e); }, 300);
                 } else if (currentX < -threshold) {
-                    // Swipe Left (Delete)
-                    card.style.transform = `translateX(-${window.innerWidth}px) rotate(-30deg)`;
-                    card.style.opacity = 0;
-                    setTimeout(() => this.deleteTask(taskId), 300);
+                    card.style.transform = `translateX(-${window.innerWidth}px) rotate(-30deg)`; card.style.opacity = 0;
+                    setTimeout(() => { this.vibrate(50); this.state.tasks = this.state.tasks.filter(t => t.id !== taskId); this.saveState(); this.renderTasks(); }, 300);
                 } else {
-                    // Snap back
-                    card.style.transform = `translateY(0) scale(1)`;
-                    rightOverlay.style.opacity = 0;
-                    leftOverlay.style.opacity = 0;
+                    card.style.transform = `translateY(0) scale(1)`; rightOverlay.style.opacity = 0; leftOverlay.style.opacity = 0;
                 }
                 currentX = 0;
+            });
+        },
+
+        startTask(id, e) {
+            const task = this.state.tasks.find(t => t.id === id); this.state.tasks = this.state.tasks.filter(t => t.id !== id);
+            this.state.activeTask = { id: task.id, title: task.title, startTime: Date.now(), entries: [] };
+            this.awardPoints(10, e); this.saveState(); this.startTimerDisplay();
+            this.switchTab('view-work', document.querySelector('.tab-item[data-target="view-work"]'));
+        },
+
+        /* WORK */
+        startTimerDisplay() {
+            clearInterval(this.timerInterval);
+            const update = () => {
+                const diff = Math.floor((Date.now() - this.state.activeTask.startTime) / 1000);
+                const m = String(Math.floor(diff / 60)).padStart(2, '0');
+                const s = String(diff % 60).padStart(2, '0');
+                this.els.liveTimer.textContent = `${m}:${s}`;
             };
-
-            card.addEventListener('touchstart', onTouchStart, {passive: true});
-            card.addEventListener('touchmove', onTouchMove, {passive: true});
-            card.addEventListener('touchend', onTouchEnd);
+            update(); this.timerInterval = setInterval(update, 1000);
         },
 
-        deleteTask(id) {
-            this.state.tasks = this.state.tasks.filter(t => t.id !== id);
-            this.saveState();
-            this.renderTasks();
-        },
-
-        startFocusedTask(id, e) {
-            const task = this.state.tasks.find(t => t.id === id);
-            this.state.tasks = this.state.tasks.filter(t => t.id !== id);
-            
-            this.state.activeTask = {
-                id: task.id,
-                title: task.title,
-                startTime: Date.now(),
-                entries: []
-            };
-
-            this.awardPoints(10, e); // Points for starting
-            this.saveState();
-            
-            // Auto switch to Work tab
-            const workTab = document.querySelector('.tab-item[data-target="view-work"]');
-            this.switchTab('view-work', workTab);
-        },
-
-        // --- WORK LOGIC ---
         renderWorkView() {
             if(this.state.activeTask) {
-                this.els.workContent.style.display = 'block';
-                this.els.noWorkContent.style.display = 'none';
-                this.els.activeTaskTitle.textContent = this.state.activeTask.title;
-                this.renderJournalFeed();
+                this.els.workContent.style.display = 'block'; this.els.noWorkContent.style.display = 'none';
+                this.els.activeTaskTitle.textContent = this.state.activeTask.title; this.renderJournalFeed();
             } else {
-                this.els.workContent.style.display = 'none';
-                this.els.noWorkContent.style.display = 'block';
+                this.els.workContent.style.display = 'none'; this.els.noWorkContent.style.display = 'block';
+                clearInterval(this.timerInterval);
             }
         },
 
         logJournal(e) {
-            const text = this.els.journalInput.value.trim();
-            if(!text || !this.state.activeTask) return;
-
-            this.state.activeTask.entries.push({ time: Date.now(), text });
-            this.els.journalInput.value = '';
-            
-            this.awardPoints(5, event || e); // Points for journaling
-            this.saveState();
-            this.renderJournalFeed();
+            const text = this.els.journalInput.value.trim(); if(!text || !this.state.activeTask) return;
+            this.vibrate(30);
+            this.state.activeTask.entries.push({ time: Date.now(), text, tag: this.activeTag });
+            this.els.journalInput.value = ''; this.awardPoints(5, e); this.saveState(); this.renderJournalFeed();
         },
 
         renderJournalFeed() {
             this.els.journalFeed.innerHTML = '';
-            const entries = this.state.activeTask.entries;
-            
-            [...entries].reverse().forEach(entry => {
-                const el = document.createElement('div');
-                el.className = 'journal-entry';
+            [...this.state.activeTask.entries].reverse().forEach(entry => {
+                const el = document.createElement('div'); el.className = 'journal-entry';
                 const time = new Intl.DateTimeFormat('en-US', {hour:'numeric', minute:'2-digit'}).format(entry.time);
-                el.innerHTML = `<div class="time">${time}</div><div class="text">${this.escapeHTML(entry.text)}</div>`;
+                const color = this.tagColors[entry.tag] || 'var(--sys-subtext)';
+                el.innerHTML = `<div class="meta"><span>${time}</span> <span class="entry-tag" style="background:${color}">${entry.tag}</span></div><div class="text">${this.escapeHTML(entry.text)}</div>`;
                 this.els.journalFeed.appendChild(el);
             });
         },
 
         completeTask(e) {
             if(!this.state.activeTask) return;
-            
-            this.state.history.unshift({
-                ...this.state.activeTask,
-                endTime: Date.now()
-            });
-            
-            this.state.activeTask = null;
-            this.awardPoints(50, event || e);
-            this.saveState();
-            
-            // Go back to tasks
-            const tasksTab = document.querySelector('.tab-item[data-target="view-tasks"]');
-            this.switchTab('view-tasks', tasksTab);
+            this.vibrate([50, 100, 50, 100, 50]); clearInterval(this.timerInterval);
+            this.state.history.unshift({ ...this.state.activeTask, endTime: Date.now() });
+            this.state.activeTask = null; this.awardPoints(50, e); this.saveState();
+            this.switchTab('view-tasks', document.querySelector('.tab-item[data-target="view-tasks"]'));
         },
 
-        // --- SETTINGS LOGIC ---
+        abandonTask() {
+            if(!this.state.activeTask) return;
+            this.vibrate(100); clearInterval(this.timerInterval);
+            // Return to inbox
+            this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title});
+            this.state.activeTask = null; this.saveState();
+            this.switchTab('view-tasks', document.querySelector('.tab-item[data-target="view-tasks"]'));
+        },
+
+        /* SETTINGS */
         renderSettings() {
-            this.els.statsScore.textContent = `${this.state.points} pts`;
-            this.els.statsCompleted.textContent = this.state.history.length;
-
+            this.els.statsScore.textContent = `${this.state.points} pts`; this.els.statsCompleted.textContent = this.state.history.length;
             this.els.historyFeed.innerHTML = '';
-            if(this.state.history.length === 0) {
-                this.els.historyFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 15px;">No completed tasks yet.</p>';
-                return;
-            }
-
+            if(this.state.history.length === 0) { this.els.historyFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 15px;">No completed tasks yet.</p>'; return; }
             this.state.history.slice(0, 10).forEach(task => {
-                const el = document.createElement('div');
-                el.className = 'list-group';
-                el.style.marginBottom = '12px';
-                
+                const el = document.createElement('div'); el.className = 'list-group'; el.style.marginBottom = '12px';
                 const date = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric'}).format(task.startTime);
-                el.innerHTML = `
-                    <div class="list-item">
-                        <strong style="color: var(--sys-text);">${this.escapeHTML(task.title)}</strong>
-                        <span class="value">${date}</span>
-                    </div>
-                    ${task.entries.length > 0 ? `<div class="list-item" style="font-size: 13px; color: var(--sys-subtext); display: block;">${task.entries.length} journal notes logged.</div>` : ''}
-                `;
+                el.innerHTML = `<div class="list-item"><strong style="color: var(--sys-text);">${this.escapeHTML(task.title)}</strong><span class="value">${date}</span></div>
+                    ${task.entries.length > 0 ? `<div class="list-item" style="font-size: 13px; color: var(--sys-subtext); display: block;">${task.entries.length} notes logged.</div>` : ''}`;
                 this.els.historyFeed.appendChild(el);
             });
         },
 
-        escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
-        }
+        escapeHTML(str) { return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])); }
     };
 
     document.addEventListener('DOMContentLoaded', () => App.init());
-
-    // Inline Service Worker
-    const swCode = `
-        self.addEventListener('install', e => self.skipWaiting());
-        self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-        self.addEventListener('fetch', e => {
-            e.respondWith(fetch(e.request).catch(() => new Response('Offline Mode', {status: 200, headers:{'Content-Type': 'text/html'}})));
-        });
-    `;
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            const blob = new Blob([swCode], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.warn);
-        });
-    }
 </script>
 </body>
 </html>
