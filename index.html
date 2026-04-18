@@ -26,46 +26,41 @@
     <style>
         /* Apple-style CSS & Variables */
         :root {
-            --sys-blue: #007AFF;
-            --sys-green: #34C759;
-            --sys-red: #FF3B30;
-            --sys-orange: #FF9500;
-            --sys-purple: #AF52DE;
-            --sys-bg: #F2F2F7;
-            --sys-surface: #FFFFFF;
-            --sys-text: #000000;
-            --sys-subtext: #8E8E93;
-            --sys-border: rgba(0,0,0,0.1);
-            --sys-glass: rgba(255,255,255,0.8);
+            --sys-blue: #007AFF; --sys-green: #34C759; --sys-red: #FF3B30; 
+            --sys-orange: #FF9500; --sys-purple: #AF52DE;
+            --sys-bg: #F2F2F7; --sys-surface: #FFFFFF; 
+            --sys-text: #000000; --sys-subtext: #8E8E93;
+            --sys-border: rgba(0,0,0,0.1); --sys-glass: rgba(255,255,255,0.8);
             
+            /* Matrix Colors */
+            --cat-important-bg: #FFF9C4; --cat-important-text: #F57F17;
+            --cat-not-important-bg: #F5F5F5; --cat-not-important-text: #9E9E9E;
+            --cat-urgent-bg: #FFEBEE; --cat-urgent-text: #D32F2F;
+            --cat-not-urgent-bg: #E3F2FD; --cat-not-urgent-text: #1976D2;
+
             --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            --safe-top: env(safe-area-inset-top, 44px);
-            --safe-bottom: env(safe-area-inset-bottom, 34px);
-            --tab-height: 80px;
+            --safe-top: env(safe-area-inset-top, 44px); --safe-bottom: env(safe-area-inset-bottom, 34px); --tab-height: 80px;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --sys-blue: #0A84FF;
-                --sys-green: #30D158;
-                --sys-red: #FF453A;
-                --sys-orange: #FF9F0A;
-                --sys-purple: #BF5AF2;
-                --sys-bg: #000000;
-                --sys-surface: #1C1C1E;
-                --sys-text: #FFFFFF;
-                --sys-subtext: #98989D;
-                --sys-border: rgba(255,255,255,0.15);
-                --sys-glass: rgba(28,28,30,0.8);
+                --sys-blue: #0A84FF; --sys-green: #30D158; --sys-red: #FF453A;
+                --sys-orange: #FF9F0A; --sys-purple: #BF5AF2;
+                --sys-bg: #000000; --sys-surface: #1C1C1E; 
+                --sys-text: #FFFFFF; --sys-subtext: #98989D;
+                --sys-border: rgba(255,255,255,0.15); --sys-glass: rgba(28,28,30,0.8);
+                
+                /* Dark Mode Matrix Colors */
+                --cat-important-bg: #403816; --cat-important-text: #FFF59D;
+                --cat-not-important-bg: #2C2C2E; --cat-not-important-text: #8E8E93;
+                --cat-urgent-bg: #4A1A1E; --cat-urgent-text: #EF9A9A;
+                --cat-not-urgent-bg: #14314F; --cat-not-urgent-text: #90CAF9;
             }
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
 
-        body {
-            background-color: var(--sys-bg); color: var(--sys-text); overflow: hidden;
-            height: 100vh; width: 100vw; display: flex; flex-direction: column;
-        }
+        body { background-color: var(--sys-bg); color: var(--sys-text); overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; }
 
         /* Header */
         header {
@@ -78,8 +73,7 @@
         .points-badge {
             position: absolute; right: 16px; top: calc(var(--safe-top) + 8px);
             background: var(--sys-orange); color: white; padding: 4px 10px; border-radius: 12px;
-            font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 4px;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: 0.2s;
         }
 
         /* Views */
@@ -101,58 +95,50 @@
         input[type="text"], textarea { flex-grow: 1; border: none; background: transparent; padding: 12px; font-size: 17px; color: var(--sys-text); outline: none; }
         textarea { resize: none; min-height: 80px; width: 100%; }
 
-        button.btn-primary {
-            background: var(--sys-blue); color: white; border: none; padding: 12px 20px;
-            border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: transform 0.1s, opacity 0.1s;
-        }
+        button.btn-primary { background: var(--sys-blue); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: 0.1s; }
         button.btn-primary:active { transform: scale(0.96); opacity: 0.9; }
         button.btn-block { width: 100%; padding: 16px; border-radius: 14px; margin-bottom: 16px; }
         button.btn-success { background: var(--sys-green); }
         button.btn-danger { background: var(--sys-red); }
         button.btn-ghost { background: transparent; color: var(--sys-red); width: 100%; padding: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
 
-        /* Tag Selector */
-        .tag-selector { display: flex; gap: 8px; margin-bottom: 12px; padding: 0 12px; overflow-x: auto;}
-        .tag-btn { 
-            background: var(--sys-bg); border: 1px solid var(--sys-border); color: var(--sys-subtext); 
-            padding: 6px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; 
-        }
-        .tag-btn.active[data-tag="Distraction"] { background: var(--sys-orange); color: white; border-color: var(--sys-orange); }
-        .tag-btn.active[data-tag="Idea"] { background: var(--sys-purple); color: white; border-color: var(--sys-purple); }
-        .tag-btn.active[data-tag="Note"] { background: var(--sys-blue); color: white; border-color: var(--sys-blue); }
-
-        /* Tinder-like Stack */
+        /* Tinder-like Triage Stack */
         .card-stack { position: relative; height: 350px; width: 100%; margin-top: 20px; perspective: 1000px; }
         .task-card {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: var(--sys-surface); border-radius: 24px; padding: 32px 24px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-            transform-origin: 50% 100%; will-change: transform; user-select: none; touch-action: pan-y;
+            justify-content: center; align-items: center; text-align: center; border: 2px solid transparent;
+            transform-origin: 50% 100%; will-change: transform; user-select: none; touch-action: none;
         }
         .task-card .task-title { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
-        .task-card .task-hint { color: var(--sys-subtext); font-size: 15px; }
+        .task-card .task-hint { color: var(--sys-subtext); font-size: 13px; margin-top: auto; }
+        
+        .card-delete-btn {
+            position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.05); border: none; 
+            border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
+            color: var(--sys-subtext); cursor: pointer; z-index: 10;
+        }
 
-        .swipe-overlay { position: absolute; top: 24px; font-size: 32px; font-weight: 800; text-transform: uppercase; border: 4px solid; border-radius: 12px; padding: 4px 12px; opacity: 0; }
-        .swipe-right-overlay { right: 24px; color: var(--sys-green); border-color: var(--sys-green); transform: rotate(15deg); }
-        .swipe-left-overlay { left: 24px; color: var(--sys-red); border-color: var(--sys-red); transform: rotate(-15deg); }
+        .swipe-overlay { position: absolute; font-size: 24px; font-weight: 800; text-transform: uppercase; border: 3px solid; border-radius: 12px; padding: 4px 12px; opacity: 0; pointer-events: none; }
+        .swipe-right-overlay { top: 24px; left: 24px; color: var(--sys-red); border-color: var(--sys-red); transform: rotate(-15deg); }
+        .swipe-left-overlay { top: 24px; right: 24px; color: var(--sys-blue); border-color: var(--sys-blue); transform: rotate(15deg); }
+        .swipe-up-overlay { bottom: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-orange); border-color: var(--sys-orange); }
+        .swipe-down-overlay { top: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-subtext); border-color: var(--sys-subtext); }
 
         .empty-stack { text-align: center; color: var(--sys-subtext); padding-top: 100px; }
 
         /* Work Mode UI */
-        .active-task-banner {
-            background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white;
-            padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-        }
+        .active-task-banner { background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white; padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; }
         .active-task-banner h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px;}
         .active-task-banner h2 { font-size: 26px; margin: 0 0 16px 0; font-weight: 700;}
         .live-timer { font-size: 36px; font-variant-numeric: tabular-nums; font-weight: 800; font-family: monospace; background: rgba(0,0,0,0.2); padding: 8px 20px; border-radius: 16px; }
 
-        .journal-feed { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
-        .journal-entry { background: var(--sys-surface); padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px;}
-        .journal-entry .meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--sys-subtext); font-weight: 600;}
-        .entry-tag { padding: 2px 8px; border-radius: 8px; font-size: 11px; color: white; text-transform: uppercase; letter-spacing: 0.5px;}
+        /* Profile & Collapsible History */
+        details.history-item { background: var(--sys-surface); border-radius: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); overflow: hidden; }
+        details.history-item summary { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }
+        details.history-item summary::-webkit-details-marker { display: none; }
+        .history-logs { padding: 0 20px 16px 20px; font-size: 15px; color: var(--sys-text); }
 
         /* Navigation Tab Bar */
         .tab-bar {
@@ -166,14 +152,8 @@
         .tab-item svg { width: 28px; height: 28px; margin-bottom: 4px; stroke-width: 2;}
         .tab-item span { font-size: 10px; font-weight: 600; }
 
-        /* Floater */
         .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
-
-        /* Settings List */
-        .list-group { background: var(--sys-surface); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
-        .list-item { padding: 16px 20px; border-bottom: 1px solid var(--sys-border); display: flex; justify-content: space-between; align-items: center; }
-        .list-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -189,13 +169,13 @@
     <div class="views-container">
         
         <div id="view-tasks" class="view active">
-            <h1>Inbox</h1>
+            <h1>Inbox Triage</h1>
             <div class="input-group">
                 <input type="text" id="new-task-input" placeholder="Add a new task..." autocomplete="off">
                 <button class="btn-primary" id="add-task-btn">+</button>
             </div>
             <div id="active-task-warning" style="display: none; text-align: center; color: var(--sys-orange); padding: 20px; background: var(--sys-surface); border-radius: 16px;">
-                You have an ongoing task. Finish or abandon it in Work Mode before starting a new one.
+                You have an ongoing task. Finish or abandon it before starting a new one.
             </div>
             <div class="card-stack" id="card-stack"></div>
             <div id="empty-stack-msg" class="empty-stack">
@@ -211,25 +191,10 @@
                     <h2 id="active-task-title">Task Name</h2>
                     <div class="live-timer" id="live-timer">00:00</div>
                 </div>
-
-                <h2>Mind Dump</h2>
-                <div class="input-group" style="flex-direction: column; padding: 12px; border-radius: 20px;">
-                    <div class="tag-selector" id="tag-selector">
-                        <button class="tag-btn active" data-tag="Distraction">Distraction</button>
-                        <button class="tag-btn" data-tag="Idea">Idea</button>
-                        <button class="tag-btn" data-tag="Note">Note</button>
-                    </div>
-                    <textarea id="journal-input" placeholder="Get it out of your head..."></textarea>
-                    <button class="btn-primary btn-block" style="margin-bottom: 0;" id="log-btn">Log Thought (+5 pts)</button>
-                </div>
-
-                <div class="journal-feed" id="journal-feed"></div>
-
                 <div style="height: 24px;"></div>
                 <button class="btn-primary btn-block btn-success" id="complete-btn">Complete Task (+50 pts)</button>
                 <button class="btn-ghost" id="abandon-btn">Abandon Task</button>
             </div>
-            
             <div id="no-work-content" class="empty-stack">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 <p>No active task.</p>
@@ -238,10 +203,15 @@
 
         <div id="view-settings" class="view">
             <h1>Profile</h1>
-            <h2>Stats</h2>
-            <div class="list-group">
-                <div class="list-item"><span>Total Score</span><strong class="value" id="stats-score" style="color: var(--sys-orange);">0 pts</strong></div>
-                <div class="list-item"><span>Tasks Completed</span><span class="value" id="stats-completed">0</span></div>
+            <div style="display:flex; justify-content: space-between; margin-bottom: 24px;">
+                <div style="background: var(--sys-surface); padding: 16px; border-radius: 16px; width: 48%; text-align: center;">
+                    <span style="font-size: 13px; color: var(--sys-subtext);">Score</span><br>
+                    <strong id="stats-score" style="color: var(--sys-orange); font-size: 24px;">0</strong>
+                </div>
+                <div style="background: var(--sys-surface); padding: 16px; border-radius: 16px; width: 48%; text-align: center;">
+                    <span style="font-size: 13px; color: var(--sys-subtext);">Completed</span><br>
+                    <strong id="stats-completed" style="font-size: 24px;">0</strong>
+                </div>
             </div>
             <h2>History</h2>
             <div id="history-feed" style="margin-bottom: 24px;"></div>
@@ -260,15 +230,13 @@
     const App = {
         state: { tasks: [], activeTask: null, history: [], points: 0 },
         timerInterval: null,
-        activeTag: 'Distraction',
-        tagColors: { 'Distraction': 'var(--sys-orange)', 'Idea': 'var(--sys-purple)', 'Note': 'var(--sys-blue)' },
 
         els: {
             views: document.querySelectorAll('.view'), tabs: document.querySelectorAll('.tab-item'),
             headerTitle: document.getElementById('header-title'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
             taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'), activeTaskWarning: document.getElementById('active-task-warning'),
-            workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'),
-            liveTimer: document.getElementById('live-timer'), tagBtns: document.querySelectorAll('.tag-btn'), journalInput: document.getElementById('journal-input'), logBtn: document.getElementById('log-btn'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
+            workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'), liveTimer: document.getElementById('live-timer'),
+            completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
             statsScore: document.getElementById('stats-score'), statsCompleted: document.getElementById('stats-completed'), historyFeed: document.getElementById('history-feed'), resetBtn: document.getElementById('reset-btn')
         },
 
@@ -286,15 +254,6 @@
             this.els.tabs.forEach(tab => tab.addEventListener('click', () => { this.vibrate(20); this.switchTab(tab.dataset.target, tab); }));
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
-            
-            this.els.tagBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                this.vibrate(20);
-                this.els.tagBtns.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                this.activeTag = e.target.dataset.tag;
-            }));
-
-            this.els.logBtn.addEventListener('click', (e) => this.logJournal(e));
             this.els.completeBtn.addEventListener('click', (e) => this.completeTask(e));
             this.els.abandonBtn.addEventListener('click', () => { if(confirm("Abandon this task? It will return to your inbox.")) this.abandonTask(); });
             this.els.resetBtn.addEventListener('click', () => { if(confirm("Erase all data?")) { localStorage.removeItem('flowdeck_state'); location.reload(); } });
@@ -317,7 +276,9 @@
             this.els.pointsBadge.style.transform = 'scale(1.2)'; setTimeout(() => this.els.pointsBadge.style.transform = 'scale(1)', 200);
             const floater = document.createElement('div'); floater.className = 'floating-score'; floater.textContent = `+${amount}`;
             let x = window.innerWidth / 2, y = window.innerHeight / 2;
-            if (e && e.touches) { x = e.touches[0].clientX; y = e.touches[0].clientY; } else if (e && e.clientX) { x = e.clientX; y = e.clientY; }
+            if (e && e.changedTouches) { x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; }
+            else if (e && e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; } 
+            else if (e && e.clientX) { x = e.clientX; y = e.clientY; }
             floater.style.left = `${x}px`; floater.style.top = `${y}px`; document.body.appendChild(floater);
             setTimeout(() => floater.remove(), 1000);
         },
@@ -325,8 +286,13 @@
         /* TASKS */
         addTask() {
             const title = this.els.taskInput.value.trim(); if(!title) return;
-            this.state.tasks.unshift({ id: Date.now().toString(), title });
+            this.state.tasks.unshift({ id: Date.now().toString(), title, category: null });
             this.els.taskInput.value = ''; this.els.taskInput.blur();
+            this.saveState(); this.renderTasks();
+        },
+
+        deleteTask(id) {
+            this.state.tasks = this.state.tasks.filter(t => t.id !== id);
             this.saveState(); this.renderTasks();
         },
 
@@ -340,45 +306,120 @@
                 this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'block'; return;
             }
             this.els.cardStack.style.display = 'block'; this.els.emptyStackMsg.style.display = 'none';
+            
             const displayTasks = this.state.tasks.slice(0, 3).reverse();
+            const catLabels = {
+                'important': { label: 'Important', bg: 'var(--cat-important-bg)', color: 'var(--cat-important-text)' },
+                'not-important': { label: 'Not Important', bg: 'var(--cat-not-important-bg)', color: 'var(--cat-not-important-text)' },
+                'urgent': { label: 'Urgent', bg: 'var(--cat-urgent-bg)', color: 'var(--cat-urgent-text)' },
+                'not-urgent': { label: 'Not Urgent', bg: 'var(--cat-not-urgent-bg)', color: 'var(--cat-not-urgent-text)' }
+            };
+
             displayTasks.forEach((task, index) => {
                 const isTopCard = index === displayTasks.length - 1;
                 const card = document.createElement('div'); card.className = 'task-card';
-                card.style.zIndex = index; card.style.transform = `translateY(${(displayTasks.length - 1 - index) * 15}px) scale(${1 - ((displayTasks.length - 1 - index) * 0.05)})`;
-                card.innerHTML = `<div class="swipe-overlay swipe-left-overlay">Skip</div><div class="swipe-overlay swipe-right-overlay">Start</div><div class="task-title">${this.escapeHTML(task.title)}</div><div class="task-hint">Swipe Right to Start • Swipe Left to Delete</div>`;
+                card.style.zIndex = index; 
+                card.style.transform = `translateY(${(displayTasks.length - 1 - index) * 15}px) scale(${1 - ((displayTasks.length - 1 - index) * 0.05)})`;
+                
+                let badgeHtml = '';
+                if (task.category && catLabels[task.category]) {
+                    const info = catLabels[task.category];
+                    card.style.backgroundColor = info.bg;
+                    card.style.borderColor = info.color;
+                    badgeHtml = `<div style="color: ${info.color}; font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">• ${info.label}</div>`;
+                }
+
+                card.innerHTML = `
+                    <button class="card-delete-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                    <div class="swipe-overlay swipe-up-overlay">Important</div><div class="swipe-overlay swipe-down-overlay">Not Important</div>
+                    <div class="swipe-overlay swipe-left-overlay">Not Urgent</div><div class="swipe-overlay swipe-right-overlay">Urgent</div>
+                    ${badgeHtml}
+                    <div class="task-title">${this.escapeHTML(task.title)}</div>
+                    <div class="task-hint">Tap to Start • Swipe to Categorize</div>
+                `;
+                
                 if (isTopCard) this.initSwipeLogic(card, task.id);
+                
+                // Bind delete separately
+                const delBtn = card.querySelector('.card-delete-btn');
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); this.vibrate(50); this.deleteTask(task.id); });
+                
                 this.els.cardStack.appendChild(card);
             });
         },
 
         initSwipeLogic(card, taskId) {
-            let startX = 0, currentX = 0, isDragging = false; const threshold = window.innerWidth * 0.3;
-            const rightOverlay = card.querySelector('.swipe-right-overlay'), leftOverlay = card.querySelector('.swipe-left-overlay');
-            card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; card.style.transition = 'none'; }, {passive: true});
-            card.addEventListener('touchmove', e => {
-                if(!isDragging) return; currentX = e.touches[0].clientX - startX;
-                card.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.05}deg)`;
-                if (currentX > 0) { rightOverlay.style.opacity = Math.min(currentX / threshold, 1); leftOverlay.style.opacity = 0; } 
-                else { leftOverlay.style.opacity = Math.min(Math.abs(currentX) / threshold, 1); rightOverlay.style.opacity = 0; }
-            }, {passive: true});
-            card.addEventListener('touchend', e => {
-                if(!isDragging) return; isDragging = false; card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-                if (currentX > threshold) {
-                    card.style.transform = `translateX(${window.innerWidth}px) rotate(30deg)`; card.style.opacity = 0;
-                    setTimeout(() => { this.vibrate([30, 50, 30]); this.startTask(taskId, e); }, 300);
-                } else if (currentX < -threshold) {
-                    card.style.transform = `translateX(-${window.innerWidth}px) rotate(-30deg)`; card.style.opacity = 0;
-                    setTimeout(() => { this.vibrate(50); this.state.tasks = this.state.tasks.filter(t => t.id !== taskId); this.saveState(); this.renderTasks(); }, 300);
+            let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false, moved = false;
+            const threshold = window.innerWidth * 0.25;
+            const overlays = { r: card.querySelector('.swipe-right-overlay'), l: card.querySelector('.swipe-left-overlay'), u: card.querySelector('.swipe-up-overlay'), d: card.querySelector('.swipe-down-overlay') };
+
+            const onStart = (e) => { 
+                startX = e.touches ? e.touches[0].clientX : e.clientX; 
+                startY = e.touches ? e.touches[0].clientY : e.clientY; 
+                isDragging = true; moved = false; card.style.transition = 'none'; 
+            };
+            
+            const onMove = (e) => {
+                if(!isDragging) return; 
+                currentX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+                currentY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+                if(Math.abs(currentX) > 5 || Math.abs(currentY) > 5) moved = true;
+
+                card.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentX * 0.05}deg)`;
+                
+                Object.values(overlays).forEach(o => o.style.opacity = 0);
+                if (Math.abs(currentX) > Math.abs(currentY)) {
+                    if (currentX > 0) overlays.r.style.opacity = Math.min(currentX / threshold, 1);
+                    else overlays.l.style.opacity = Math.min(Math.abs(currentX) / threshold, 1);
                 } else {
-                    card.style.transform = `translateY(0) scale(1)`; rightOverlay.style.opacity = 0; leftOverlay.style.opacity = 0;
+                    if (currentY < 0) overlays.u.style.opacity = Math.min(Math.abs(currentY) / threshold, 1);
+                    else overlays.d.style.opacity = Math.min(currentY / threshold, 1);
                 }
-                currentX = 0;
-            });
+            };
+
+            const onEnd = (e) => {
+                if(!isDragging) return; isDragging = false; 
+                card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+
+                if (!moved) {
+                    if(!e.target.closest('.card-delete-btn')) { this.vibrate(20); this.startTask(taskId, e); }
+                    currentX = 0; currentY = 0; return;
+                }
+
+                const absX = Math.abs(currentX), absY = Math.abs(currentY);
+                if (Math.max(absX, absY) > threshold) {
+                    if (absX > absY) {
+                        if (currentX > 0) { card.style.transform = `translate(${window.innerWidth}px, ${currentY}px) rotate(30deg)`; setTimeout(() => this.markTask(taskId, 'urgent'), 250); } 
+                        else { card.style.transform = `translate(-${window.innerWidth}px, ${currentY}px) rotate(-30deg)`; setTimeout(() => this.markTask(taskId, 'not-urgent'), 250); }
+                    } else {
+                        if (currentY < 0) { card.style.transform = `translate(${currentX}px, -${window.innerHeight}px) rotate(${currentX*0.05}deg)`; setTimeout(() => this.markTask(taskId, 'important'), 250); } 
+                        else { card.style.transform = `translate(${currentX}px, ${window.innerHeight}px) rotate(${currentX*0.05}deg)`; setTimeout(() => this.markTask(taskId, 'not-important'), 250); }
+                    }
+                    card.style.opacity = 0;
+                } else {
+                    card.style.transform = `translate(0px, 0px) scale(1)`; 
+                    Object.values(overlays).forEach(o => o.style.opacity = 0);
+                }
+                currentX = 0; currentY = 0;
+            };
+
+            card.addEventListener('touchstart', onStart, {passive: true}); card.addEventListener('touchmove', onMove, {passive: true}); card.addEventListener('touchend', onEnd);
+        },
+
+        markTask(id, category) {
+            this.vibrate([20, 40]);
+            const index = this.state.tasks.findIndex(t => t.id === id);
+            if (index > -1) {
+                const task = this.state.tasks.splice(index, 1)[0];
+                task.category = category;
+                this.state.tasks.push(task); // Re-queue to bottom of deck
+                this.saveState(); this.renderTasks();
+            }
         },
 
         startTask(id, e) {
             const task = this.state.tasks.find(t => t.id === id); this.state.tasks = this.state.tasks.filter(t => t.id !== id);
-            this.state.activeTask = { id: task.id, title: task.title, startTime: Date.now(), entries: [] };
+            this.state.activeTask = { id: task.id, title: task.title, category: task.category, startTime: Date.now(), entries: [] };
             this.awardPoints(10, e); this.saveState(); this.startTimerDisplay();
             this.switchTab('view-work', document.querySelector('.tab-item[data-target="view-work"]'));
         },
@@ -398,29 +439,11 @@
         renderWorkView() {
             if(this.state.activeTask) {
                 this.els.workContent.style.display = 'block'; this.els.noWorkContent.style.display = 'none';
-                this.els.activeTaskTitle.textContent = this.state.activeTask.title; this.renderJournalFeed();
+                this.els.activeTaskTitle.textContent = this.state.activeTask.title;
             } else {
                 this.els.workContent.style.display = 'none'; this.els.noWorkContent.style.display = 'block';
                 clearInterval(this.timerInterval);
             }
-        },
-
-        logJournal(e) {
-            const text = this.els.journalInput.value.trim(); if(!text || !this.state.activeTask) return;
-            this.vibrate(30);
-            this.state.activeTask.entries.push({ time: Date.now(), text, tag: this.activeTag });
-            this.els.journalInput.value = ''; this.awardPoints(5, e); this.saveState(); this.renderJournalFeed();
-        },
-
-        renderJournalFeed() {
-            this.els.journalFeed.innerHTML = '';
-            [...this.state.activeTask.entries].reverse().forEach(entry => {
-                const el = document.createElement('div'); el.className = 'journal-entry';
-                const time = new Intl.DateTimeFormat('en-US', {hour:'numeric', minute:'2-digit'}).format(entry.time);
-                const color = this.tagColors[entry.tag] || 'var(--sys-subtext)';
-                el.innerHTML = `<div class="meta"><span>${time}</span> <span class="entry-tag" style="background:${color}">${entry.tag}</span></div><div class="text">${this.escapeHTML(entry.text)}</div>`;
-                this.els.journalFeed.appendChild(el);
-            });
         },
 
         completeTask(e) {
@@ -434,22 +457,38 @@
         abandonTask() {
             if(!this.state.activeTask) return;
             this.vibrate(100); clearInterval(this.timerInterval);
-            // Return to inbox
-            this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title});
+            this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title, category: this.state.activeTask.category});
             this.state.activeTask = null; this.saveState();
             this.switchTab('view-tasks', document.querySelector('.tab-item[data-target="view-tasks"]'));
         },
 
-        /* SETTINGS */
+        /* SETTINGS / HISTORY */
         renderSettings() {
-            this.els.statsScore.textContent = `${this.state.points} pts`; this.els.statsCompleted.textContent = this.state.history.length;
+            this.els.statsScore.textContent = this.state.points; this.els.statsCompleted.textContent = this.state.history.length;
             this.els.historyFeed.innerHTML = '';
-            if(this.state.history.length === 0) { this.els.historyFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 15px;">No completed tasks yet.</p>'; return; }
-            this.state.history.slice(0, 10).forEach(task => {
-                const el = document.createElement('div'); el.className = 'list-group'; el.style.marginBottom = '12px';
+            if(this.state.history.length === 0) { this.els.historyFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 15px; text-align: center;">No completed tasks yet.</p>'; return; }
+            
+            this.state.history.forEach(task => {
+                const el = document.createElement('details'); el.className = 'history-item';
                 const date = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric'}).format(task.startTime);
-                el.innerHTML = `<div class="list-item"><strong style="color: var(--sys-text);">${this.escapeHTML(task.title)}</strong><span class="value">${date}</span></div>
-                    ${task.entries.length > 0 ? `<div class="list-item" style="font-size: 13px; color: var(--sys-subtext); display: block;">${task.entries.length} notes logged.</div>` : ''}`;
+                const durationRaw = task.endTime ? Math.floor((task.endTime - task.startTime)/60000) : 0;
+                
+                el.innerHTML = `
+                    <summary>
+                        <div style="display: flex; flex-direction: column;">
+                            <strong style="color: var(--sys-text); font-size: 16px;">${this.escapeHTML(task.title)}</strong>
+                            <span style="font-size: 13px; color: var(--sys-subtext); margin-top: 4px;">
+                                ${date} • ${durationRaw > 0 ? durationRaw+'m' : '<1m'} ${task.category ? `• ${task.category}` : ''}
+                            </span>
+                        </div>
+                        <div style="color: var(--sys-blue); font-size: 20px; font-weight: 400;">+</div>
+                    </summary>
+                    <div class="history-logs">
+                        Great job completing this task!
+                    </div>
+                `;
+                
+                el.addEventListener('toggle', () => { el.querySelector('summary div:last-child').textContent = el.open ? '−' : '+'; });
                 this.els.historyFeed.appendChild(el);
             });
         },
