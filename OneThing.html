@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>OneThing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles and gesture protection */
+        body {
+            margin: 0;
+            background-color: #f5f5f4;
+            color: #292524;
+            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+            overscroll-behavior-y: none; /* Prevents pull-to-refresh */
+            touch-action: none; /* Disables default scrolling for our swipe gestures */
+        }
+        
+        /* View management */
+        .view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .view.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Card styles */
+        .card {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+            transition: transform 0.2s ease;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        textarea {
+            resize: none;
+            outline: none;
+            background: transparent;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="view-home" class="view active p-6">
+        <p class="text-sm uppercase tracking-widest text-stone-400 mb-8 select-none">
+            What's one thing you'll do next?
+        </p>
+        
+        <div id="home-card" class="card w-full max-w-md bg-white rounded-3xl p-8 flex flex-col items-center justify-center min-h-[250px] cursor-grab">
+            <textarea
+                id="task-input"
+                placeholder="Open the document..."
+                class="w-full text-3xl font-medium placeholder-stone-300"
+                rows="3"
+            ></textarea>
+        </div>
+
+        <div class="mt-12 flex justify-between w-full max-w-md px-8 text-xs text-stone-400 select-none">
+            <span>← Clear</span>
+            <span>Start ↑</span>
+            <span>Simplify →</span>
+        </div>
+    </div>
+
+    <div id="view-focus" class="view bg-stone-900 text-stone-50 p-8 cursor-grab">
+        <div id="focus-area" class="text-center w-full max-w-md">
+            <p id="focus-task" class="text-2xl font-light mb-8 opacity-80 max-w-sm mx-auto"></p>
+            <h1 id="time-display" class="text-8xl font-light tracking-tighter tabular-nums">5:00</h1>
+            <p id="pause-text" class="mt-4 text-stone-500 text-sm h-6">Tap to pause.</p>
+        </div>
+        <p class="absolute bottom-12 text-stone-600 text-sm select-none">Swipe down to exit early</p>
+    </div>
+
+    <div id="view-inertia" class="view bg-white p-8 justify-end pb-24">
+        <div id="inertia-questions" class="w-full max-w-md">
+            <h2 class="text-2xl font-medium mb-8">What's stopping you?</h2>
+            <div class="flex flex-col gap-3" id="inertia-buttons">
+                </div>
+            <button id="btn-dismiss-inertia" class="w-full mt-4 p-4 text-stone-400 font-medium active:scale-95 transition-transform">
+                Just dismiss (Swipe Down)
+            </button>
+        </div>
+
+        <div id="inertia-suggestion" class="w-full max-w-md hidden">
+            <div id="suggestion-card" class="bg-stone-900 text-stone-50 p-8 rounded-3xl text-center card cursor-grab">
+                <p class="text-sm uppercase tracking-widest text-stone-400 mb-4">Suggestion</p>
+                <p id="suggestion-text" class="text-2xl font-medium mb-8"></p>
+                <div class="flex justify-between text-xs text-stone-400">
+                    <span>← Dismiss</span>
+                    <span>Accept →</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-completion" class="view p-8">
+        <div class="w-full max-w-md text-center">
+            <h2 class="text-4xl font-medium mb-12">Time's up.</h2>
+            <div class="flex flex-col w-full gap-4">
+                <button id="btn-done" class="w-full p-5 rounded-2xl bg-stone-900 text-stone-50 text-lg font-medium active:scale-95 transition-transform">
+                    Done
+                </button>
+                <button id="btn-continue" class="w-full p-5 rounded-2xl bg-stone-200 text-stone-800 text-lg font-medium active:scale-95 transition-transform">
+                    Continue
+                </button>
+            </div>
+            <p id="completion-prompt" class="mt-8 text-stone-500 hidden">Want to do another tiny step?</p>
+        </div>
+    </div>
+
+    <script>
+        // --- State ---
+        const DEFAULT_TIME = 5 * 60; // 5 minutes
+        let state = {
+            view: 'home',
+            task: localStorage.getItem('adhd_task') || '',
+            timeLeft: DEFAULT_TIME,
+            isPaused: false,
+            timer: null,
+            suggestion: ''
+        };
+
+        // --- DOM Elements ---
+        const views = ['home', 'focus', 'inertia', 'completion'];
+        const elTaskInput = document.getElementById('task-input');
+        const elTime = document.getElementById('time-display');
+        const elFocusTask = document.getElementById('focus-task');
+        const elPauseText = document.getElementById('pause-text');
+
+        // Initialize Input
+        elTaskInput.value = state.task;
+        elTaskInput.addEventListener('input', (e) => {
+            state.task = e.target.value;
+            localStorage.setItem('adhd_task', state.task);
+        });
+
+        // --- Core Functions ---
+        function setView(newView) {
+            views.forEach(v => document.getElementById(`view-${v}`).classList.remove('active'));
+            document.getElementById(`view-${newView}`).classList.add('active');
+            state.view = newView;
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function updateTimeDisplay() {
+            elTime.textContent = formatTime(state.timeLeft);
+        }
+
+        function togglePause() {
+            state.isPaused = !state.isPaused;
+            elPauseText.textContent = state.isPaused ? "Paused. Tap to resume." : "Tap to pause.";
+        }
+
+        function startTimer() {
+            if (state.timer) clearInterval(state.timer);
+            updateTimeDisplay();
+            state.timer = setInterval(() => {
+                if (!state.isPaused && state.timeLeft > 0) {
+                    state.timeLeft--;
+                    updateTimeDisplay();
+                } else if (state.timeLeft === 0 && !state.isPaused) {
+                    clearInterval(state.timer);
+                    setView('completion');
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                }
+            }, 1000);
+        }
+
+        // --- Swipe Gesture Logic ---
+        function setupSwipe(elementId, callbacks) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            let startX = 0, startY = 0;
+            el.addEventListener('touchstart', e => {
+                startX = e.changedTouches[0].screenX;
+                startY = e.changedTouches[0].screenY;
+            });
+            
+            el.addEventListener('touchend', e => {
+                let endX = e.changedTouches[0].screenX;
+                let endY = e.changedTouches[0].screenY;
+                let diffX = endX - startX;
+                let diffY = endY - startY;
+
+                // Determine swipe direction
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 75 && callbacks.onRight) callbacks.onRight();
+                    if (diffX < -75 && callbacks.onLeft) callbacks.onLeft();
+                } else {
+                    if (diffY > 75 && callbacks.onDown) callbacks.onDown();
+                    if (diffY < -75 && callbacks.onUp) callbacks.onUp();
+                }
+            });
+        }
+
+        // --- Interactions ---
+
+        // Home View Gestures
+        setupSwipe('home-card', {
+            onUp: () => {
+                if (state.task.trim() === '') return;
+                state.timeLeft = DEFAULT_TIME;
+                state.isPaused = false;
+                elFocusTask.textContent = state.task;
+                elPauseText.textContent = "Tap to pause.";
+                setView('focus');
+                startTimer();
+                if (navigator.vibrate) navigator.vibrate(50);
+            },
+            onLeft: () => {
+                state.task = '';
+                elTaskInput.value = '';
+                localStorage.setItem('adhd_task', '');
+            },
+            onRight: () => {
+                if (state.task.trim() !== '') {
+                    state.task = `Just 2 minutes of: ${state.task}`;
+                    elTaskInput.value = state.task;
+                    localStorage.setItem('adhd_task', state.task);
+                }
+            }
+        });
+
+        // Focus View Gestures & Taps
+        setupSwipe('view-focus', {
+            onDown: () => {
+                state.isPaused = true;
+                showInertiaQuestions();
+                setView('inertia');
+            }
+        });
+        document.getElementById('focus-area').addEventListener('click', togglePause);
+
+        // Inertia View Logic
+        const reasons = {
+            'Too big': 'Make it smaller: open the file first.',
+            'Don’t know how': 'Just start: type one sentence.',
+            'Boring': 'Do 2 minutes only, then you can stop.',
+            'Tired': 'Close your eyes for 5 mins, then do one tiny step.',
+            'Distracted': 'Put your phone away. Just 5 minutes.'
+        };
+
+        const inertiaContainer = document.getElementById('inertia-buttons');
+        Object.keys(reasons).forEach(reason => {
+            const btn = document.createElement('button');
+            btn.className = "text-left w-full p-4 rounded-2xl bg-stone-100 text-stone-700 font-medium active:scale-95 transition-transform";
+            btn.textContent = reason;
+            btn.onclick = () => {
+                state.suggestion = reasons[reason];
+                document.getElementById('suggestion-text').textContent = state.suggestion;
+                document.getElementById('inertia-questions').classList.add('hidden');
+                document.getElementById('inertia-suggestion').classList.remove('hidden');
+            };
+            inertiaContainer.appendChild(btn);
+        });
+
+        function showInertiaQuestions() {
+            document.getElementById('inertia-questions').classList.remove('hidden');
+            document.getElementById('inertia-suggestion').classList.add('hidden');
+        }
+
+        document.getElementById('btn-dismiss-inertia').onclick = () => setView('home');
+        
+        setupSwipe('view-inertia', {
+            onDown: () => setView('home')
+        });
+
+        setupSwipe('suggestion-card', {
+            onRight: () => {
+                state.task = state.suggestion;
+                elTaskInput.value = state.task;
+                localStorage.setItem('adhd_task', state.task);
+                setView('home');
+            },
+            onLeft: () => {
+                setView('home');
+            }
+        });
+
+        // Completion View Logic
+        document.getElementById('btn-done').onclick = () => {
+            state.task = '';
+            elTaskInput.value = '';
+            localStorage.setItem('adhd_task', '');
+            document.getElementById('completion-prompt').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('completion-prompt').classList.add('hidden');
+                setView('home');
+            }, 2000);
+        };
+
+        document.getElementById('btn-continue').onclick = () => {
+            state.timeLeft = DEFAULT_TIME;
+            state.isPaused = false;
+            setView('focus');
+            startTimer();
+        };
+
+    </script>
+</body>
+</html>
