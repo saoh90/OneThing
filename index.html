@@ -26,7 +26,7 @@
             --sys-bg: #F2F2F7; --sys-surface: #FFFFFF; 
             --sys-text: #000000; --sys-subtext: #8E8E93;
             --sys-border: rgba(0,0,0,0.1); 
-            --sys-glass: rgba(242, 242, 247, 0.85); 
+            --sys-glass: rgba(255, 255, 255, 0.85); 
             
             --cat-important-bg: #FFF9C4; --cat-important-text: #F57F17;
             --cat-not-important-bg: #F5F5F5; --cat-not-important-text: #9E9E9E;
@@ -62,11 +62,10 @@
             background-color: var(--sys-bg); display: flex; justify-content: center; color: var(--sys-text);
         }
 
-        /* App Frame */
         .app-frame {
             width: 100%; max-width: 600px; height: 100%;
             background-color: var(--sys-bg); display: flex; flex-direction: column; position: relative;
-            transition: filter 0.5s ease; /* Transition douce pour le Boring Mode */
+            transition: filter 0.5s ease;
         }
 
         /* BORING MODE (Grayscale global pendant le focus) */
@@ -75,7 +74,7 @@
         }
 
         /* Mode Setup */
-        body.setup-mode header, body.setup-mode .tab-bar { display: none !important; }
+        body.setup-mode header, body.setup-mode #fab-nav { display: none !important; }
         body.setup-mode .view { padding-bottom: 20px !important; bottom: 0 !important; }
 
         header {
@@ -93,7 +92,8 @@
         .view {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto; -webkit-overflow-scrolling: touch;
-            padding: 12px 20px calc(70px + var(--safe-bottom)) 20px;
+            /* Espace suffisant pour ne pas bloquer le contenu sous le FAB */
+            padding: 12px 20px calc(100px + var(--safe-bottom)) 20px;
             opacity: 0; pointer-events: none; transform: translateX(20px);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
@@ -159,25 +159,89 @@
         .journal-entry { background: var(--sys-surface); padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; font-size: 14px;}
         .journal-entry span.time { color: var(--sys-subtext); font-size: 12px; }
 
-        /* Stats & Historique */
         .stat-box { background: var(--sys-surface); padding: 16px; border-radius: 16px; text-align: center; flex: 1;}
         .stat-box strong { font-size: 24px; display: block; margin-top: 4px;}
         .history-item { background: var(--sys-surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* TAB BAR APPLE */
-        .tab-bar { 
-            position: absolute; bottom: 0; left: 0; right: 0; 
-            height: calc(50px + var(--safe-bottom)); 
-            background: var(--sys-glass); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); 
-            border-top: 0.5px solid var(--sys-border); display: flex; justify-content: space-around; 
-            padding-bottom: var(--safe-bottom); z-index: 100; 
+        /* FLOATING ACTION BUTTON (FAB) NAVIGATION */
+        .fab-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+            z-index: 190; opacity: 0; pointer-events: none; transition: 0.3s ease;
         }
-        .tab-item { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50px; color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; }
-        .tab-item.active { color: var(--sys-blue); }
-        .tab-item svg { width: 24px; height: 24px; margin-bottom: 2px; stroke-width: 2;}
-        .tab-item span { font-size: 10px; font-weight: 500; }
+        .fab-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .fab-container {
+            position: absolute;
+            bottom: calc(20px + var(--safe-bottom));
+            right: 20px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: flex-end;
+            z-index: 200;
+        }
+
+        .fab-main {
+            width: 56px; height: 56px;
+            border-radius: 28px;
+            background: var(--sys-blue);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.4);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 2;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .fab-main:active { transform: scale(0.9); }
+        .fab-main svg { width: 24px; height: 24px; stroke-width: 2.5; transition: 0.3s; }
+        .fab-main .icon-close { display: none; }
+        
+        .fab-container.open .fab-main { background: var(--sys-surface); color: var(--sys-text); transform: rotate(90deg); box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
+        .fab-container.open .fab-main .icon-menu { display: none; }
+        .fab-container.open .fab-main .icon-close { display: block; }
+
+        .fab-menu {
+            display: flex; flex-direction: column; align-items: flex-end;
+            margin-bottom: 16px;
+            pointer-events: none;
+        }
+
+        .fab-item {
+            display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+            margin-bottom: 16px;
+            background: transparent; border: none; cursor: pointer;
+            opacity: 0; transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .fab-item-label {
+            background: var(--sys-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 8px 16px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; color: var(--sys-text);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .fab-item-icon {
+            width: 48px; height: 48px; border-radius: 24px;
+            background: var(--sys-surface); color: var(--sys-subtext);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+        }
+        .fab-item-icon svg { width: 20px; height: 20px; stroke-width: 2; }
+        
+        /* État Actif d'un bouton du menu */
+        .fab-item.active .fab-item-icon { color: var(--sys-blue); border-color: var(--sys-blue); }
+        .fab-item.active .fab-item-label { color: var(--sys-blue); }
+
+        /* Animation d'ouverture du menu en cascade */
+        .fab-container.open .fab-menu { pointer-events: auto; }
+        .fab-container.open .fab-item { opacity: 1; transform: translateY(0); }
+        .fab-container.open .fab-item:nth-child(1) { transition-delay: 0.1s; }
+        .fab-container.open .fab-item:nth-child(2) { transition-delay: 0.05s; }
+        .fab-container.open .fab-item:nth-child(3) { transition-delay: 0s; }
 
         .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
@@ -311,20 +375,38 @@
         </div>
     </div>
 
-    <nav class="tab-bar">
-        <div class="tab-item active" data-target="view-main">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-            <span>Accueil</span>
+    <div class="fab-overlay" id="fab-overlay"></div>
+    <div class="fab-container" id="fab-nav">
+        
+        <div class="fab-menu">
+            <button class="fab-item" data-target="view-settings">
+                <div class="fab-item-label">Profil</div>
+                <div class="fab-item-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+            </button>
+            
+            <button class="fab-item" data-target="view-analytics">
+                <div class="fab-item-label">Analytics</div>
+                <div class="fab-item-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                </div>
+            </button>
+
+            <button class="fab-item active" data-target="view-main">
+                <div class="fab-item-label">Accueil / Focus</div>
+                <div class="fab-item-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+            </button>
         </div>
-        <div class="tab-item" data-target="view-analytics">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            <span>Analytics</span>
-        </div>
-        <div class="tab-item" data-target="view-settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>Profil</span>
-        </div>
-    </nav>
+
+        <button class="fab-main" id="fab-main-btn">
+            <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+    </div>
 
 </div>
 
@@ -335,18 +417,20 @@
         preflightData: { stress: 0, emo: '', reason: '' },
 
         els: {
-            views: document.querySelectorAll('.view'), tabs: document.querySelectorAll('.tab-item'),
+            views: document.querySelectorAll('.view'),
+            
+            // Nouveau FAB Menu
+            fabNav: document.getElementById('fab-nav'), fabMainBtn: document.getElementById('fab-main-btn'), 
+            fabItems: document.querySelectorAll('.fab-item'), fabOverlay: document.getElementById('fab-overlay'),
+
             headerDate: document.getElementById('header-date'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
             
-            // Main View (Inbox & Focus)
             inboxContent: document.getElementById('inbox-content'), focusContent: document.getElementById('focus-content'),
             taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'),
             activeTaskTitle: document.getElementById('active-task-title'), activeBanner: document.getElementById('active-banner'), liveTimer: document.getElementById('live-timer'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
             
-            // Analytics
             statsScore: document.getElementById('stats-score'), statsCompleted: document.getElementById('stats-completed'), patternFeed: document.getElementById('pattern-feed'), historyFeed: document.getElementById('history-feed'),
             
-            // Overlays
             sheetOverlay: document.getElementById('sheet-overlay'), preflightSheet: document.getElementById('preflight-sheet'), emotionGrid: document.getElementById('emotion-grid'), interventionZone: document.getElementById('intervention-zone'), blockReasonGrid: document.getElementById('block-reason-grid')
         },
 
@@ -383,7 +467,7 @@
 
         bootApp() {
             this.renderMainView();
-            const mainTab = document.querySelector('.tab-item[data-target="view-main"]');
+            const mainTab = document.querySelector('.fab-item[data-target="view-main"]');
             this.switchTab('view-main', mainTab);
         },
 
@@ -392,7 +476,16 @@
         saveState() { localStorage.setItem('flowdeck_state', JSON.stringify(this.state)); this.updateUI(); },
 
         bindEvents() {
-            this.els.tabs.forEach(tab => tab.addEventListener('click', () => { this.vibrate(20); this.switchTab(tab.dataset.target, tab); }));
+            // FAB Logic
+            this.els.fabMainBtn.addEventListener('click', () => this.toggleFab());
+            this.els.fabOverlay.addEventListener('click', () => this.closeFab());
+
+            this.els.fabItems.forEach(tab => tab.addEventListener('click', () => { 
+                this.vibrate(20); this.switchTab(tab.dataset.target, tab); 
+                this.closeFab();
+            }));
+
+            // Tasks Logic
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
             
@@ -451,8 +544,21 @@
             });
         },
 
+        /* FAB Toggle */
+        toggleFab() {
+            this.vibrate(15);
+            this.els.fabNav.classList.toggle('open');
+            this.els.fabOverlay.classList.toggle('active');
+        },
+        closeFab() {
+            this.els.fabNav.classList.remove('open');
+            this.els.fabOverlay.classList.remove('active');
+        },
+
         switchTab(targetId, tabEl) {
-            this.els.tabs.forEach(t => t.classList.remove('active')); tabEl.classList.add('active');
+            this.els.fabItems.forEach(t => t.classList.remove('active')); 
+            if(tabEl) tabEl.classList.add('active');
+            
             this.els.views.forEach(v => v.classList.remove('active')); document.getElementById(targetId).classList.add('active');
             
             if(targetId === 'view-main') this.renderMainView();
@@ -475,13 +581,11 @@
             setTimeout(() => floater.remove(), 1000);
         },
 
-        /* VUE PRINCIPALE (GESTION INBOX / FOCUS & BORING MODE) */
         renderMainView() {
             if(this.state.activeTask) {
-                // Mode Focus (Actif)
                 this.els.inboxContent.style.display = 'none';
                 this.els.focusContent.style.display = 'block';
-                document.body.classList.add('boring-mode'); // Déclenche le Grayscale
+                document.body.classList.add('boring-mode'); 
                 
                 this.els.activeTaskTitle.textContent = this.state.activeTask.title;
                 this.els.activeBanner.className = 'active-task-banner';
@@ -490,10 +594,9 @@
                 this.renderJournalFeed();
                 this.startTimerDisplay();
             } else {
-                // Mode Inbox (Repos)
                 this.els.focusContent.style.display = 'none';
                 this.els.inboxContent.style.display = 'block';
-                document.body.classList.remove('boring-mode'); // Retire le Grayscale
+                document.body.classList.remove('boring-mode');
                 clearInterval(this.timerInterval);
                 
                 this.renderTasks();
@@ -641,7 +744,7 @@
             };
             
             this.closeSheet(); this.awardPoints(10); this.saveState(); 
-            this.switchTab('view-main', document.querySelector('.tab-item[data-target="view-main"]'));
+            this.switchTab('view-main', document.querySelector('.fab-item[data-target="view-main"]'));
         },
 
         /* WORK */
