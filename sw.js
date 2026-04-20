@@ -1,39 +1,72 @@
-const CACHE_NAME = 'flowdeck-v2-production';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'flowdeck-v3';
+const CORE_ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-touch-icon.png'
 ];
 
-// Installation : Mise en cache des fichiers vitaux
+const cacheSameOrigin = async (request, response) => {
+  if (!response || !response.ok) return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  const cache = await caches.open(CACHE_NAME);
+  await cache.put(request, response);
+};
+
+// Installation : mise en cache best-effort des fichiers vitaux
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    for (const url of CORE_ASSETS) {
+      try { await cache.add(url); } catch (e) {}
+    }
+  })());
   self.skipWaiting();
 });
 
-// Activation : Nettoyage des anciens caches
+// Activation : nettoyage des anciens caches
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(keyList.map((key) => {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      }));
-    })
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : undefined)));
+    await self.clients.claim();
+  })());
 });
 
-// Stratégie "Cache First, fall back to Network"
+// Navigations: network-first (évite le HTML figé), fallback offline sur le shell
+// Assets: stale-while-revalidate (rapide + mise à jour silencieuse)
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    }).catch(() => {
-      // Optionnel : Retourner une page offline si nécessaire
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then(async (resp) => {
+          await cacheSameOrigin(new Request('./index.html'), resp.clone());
+          return resp;
+        })
+        .catch(async () => {
+          return (await caches.match('./index.html')) || (await caches.match('./')) || Response.error();
+        })
+    );
+    return;
+  }
+
+  const cachedPromise = caches.match(req);
+  const fetchPromise = fetch(req)
+    .then(async (resp) => {
+      await cacheSameOrigin(req, resp.clone());
+      return resp;
     })
-  );
+    .catch(() => null);
+
+  event.waitUntil(fetchPromise.catch(() => {}));
+  event.respondWith((async () => {
+    const cached = await cachedPromise;
+    return cached || (await fetchPromise) || Response.error();
+  })());
 });

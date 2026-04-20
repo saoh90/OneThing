@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FlowDeck">
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     
     <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
@@ -311,38 +311,113 @@
         });
     }
 
-    // 3. BASE DE DONNÉES INDEXEDDB (Robuste et Asynchrone)
-    const DB = {
-        name: 'FlowDeckDB', version: 1, storeName: 'appState',
-        init() {
-            return new Promise((resolve, reject) => {
-                const req = indexedDB.open(this.name, this.version);
-                req.onupgradeneeded = (e) => e.target.result.createObjectStore(this.storeName);
-                req.onsuccess = (e) => resolve(e.target.result);
-                req.onerror = (e) => reject(e);
-            });
-        },
-        async save(state) {
-            const db = await this.init();
-            return new Promise(resolve => {
-                const tx = db.transaction(this.storeName, 'readwrite');
-                tx.objectStore(this.storeName).put(state, 'data');
-                tx.oncomplete = () => resolve();
-            });
-        },
-        async load() {
-            const db = await this.init();
-            return new Promise(resolve => {
-                const tx = db.transaction(this.storeName, 'readonly');
-                const req = tx.objectStore(this.storeName).get('data');
-                req.onsuccess = () => resolve(req.result || null);
-            });
-        },
-        async clear() {
-            const db = await this.init();
-            db.transaction(this.storeName, 'readwrite').objectStore(this.storeName).clear();
-        }
-    };
+	    // 3. STOCKAGE (IndexedDB avec fallback localStorage)
+	    const STORAGE_KEY = 'flowdeck_state_v1';
+
+	    const safeJsonParse = (str) => {
+	        try { return JSON.parse(str); } catch (e) { return null; }
+	    };
+
+	    const withTimeout = (promise, ms) => new Promise((resolve, reject) => {
+	        const t = setTimeout(() => reject(new Error('timeout')), ms);
+	        promise.then(
+	            (val) => { clearTimeout(t); resolve(val); },
+	            (err) => { clearTimeout(t); reject(err); }
+	        );
+	    });
+
+	    const LocalStore = {
+	        load() {
+	            try { return safeJsonParse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return null; }
+	        },
+	        save(state) {
+	            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+	        },
+	        clear() {
+	            try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+	        }
+	    };
+
+	    const DB = {
+	        name: 'FlowDeckDB',
+	        version: 1,
+	        storeName: 'appState',
+	        _dbPromise: null,
+	        _disabled: false,
+
+	        init() {
+	            if (this._disabled || !('indexedDB' in window)) return Promise.reject(new Error('IndexedDB unavailable'));
+	            if (!this._dbPromise) {
+	                this._dbPromise = new Promise((resolve, reject) => {
+	                    const req = indexedDB.open(this.name, this.version);
+	                    req.onupgradeneeded = (e) => {
+	                        const db = e.target.result;
+	                        if (!db.objectStoreNames.contains(this.storeName)) db.createObjectStore(this.storeName);
+	                    };
+	                    req.onsuccess = (e) => {
+	                        const db = e.target.result;
+	                        db.onversionchange = () => { try { db.close(); } catch (e2) {} };
+	                        resolve(db);
+	                    };
+	                    req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+	                    req.onblocked = () => reject(new Error('IndexedDB open blocked'));
+	                });
+	            }
+	            return withTimeout(this._dbPromise, 2500);
+	        },
+
+	        async save(state) {
+	            if (this._disabled) { LocalStore.save(state); return; }
+	            try {
+	                const db = await this.init();
+	                await new Promise((resolve, reject) => {
+	                    const tx = db.transaction(this.storeName, 'readwrite');
+	                    tx.oncomplete = () => resolve();
+	                    tx.onerror = () => reject(tx.error || new Error('IndexedDB tx failed'));
+	                    tx.onabort = () => reject(tx.error || new Error('IndexedDB tx aborted'));
+	                    tx.objectStore(this.storeName).put(state, 'data');
+	                });
+	            } catch (e) {
+	                this._disabled = true;
+	                LocalStore.save(state);
+	            }
+	        },
+
+	        async load() {
+	            if (this._disabled) return LocalStore.load();
+	            try {
+	                const db = await this.init();
+	                return await new Promise((resolve, reject) => {
+	                    const tx = db.transaction(this.storeName, 'readonly');
+	                    tx.onerror = () => reject(tx.error || new Error('IndexedDB tx failed'));
+	                    tx.onabort = () => reject(tx.error || new Error('IndexedDB tx aborted'));
+	                    const req = tx.objectStore(this.storeName).get('data');
+	                    req.onsuccess = () => resolve(req.result || null);
+	                    req.onerror = () => reject(req.error || new Error('IndexedDB get failed'));
+	                });
+	            } catch (e) {
+	                this._disabled = true;
+	                return LocalStore.load();
+	            }
+	        },
+
+	        async clear() {
+	            LocalStore.clear();
+	            if (this._disabled) return;
+	            try {
+	                const db = await this.init();
+	                await new Promise((resolve, reject) => {
+	                    const tx = db.transaction(this.storeName, 'readwrite');
+	                    tx.oncomplete = () => resolve();
+	                    tx.onerror = () => reject(tx.error || new Error('IndexedDB tx failed'));
+	                    tx.onabort = () => reject(tx.error || new Error('IndexedDB tx aborted'));
+	                    tx.objectStore(this.storeName).clear();
+	                });
+	            } catch (e) {
+	                this._disabled = true;
+	            }
+	        }
+	    };
 
     const App = {
         state: { tasks: [], activeTask: null, history: [], points: 0, deviceSetup: false },
@@ -616,12 +691,13 @@
         
         closeSheet() { this.els.sheetOverlay.classList.remove('active'); this.els.preflightSheet.classList.remove('active'); this.pendingTaskId = null; },
 
-        async launchTask(mode) {
-            const task = this.state.tasks.find(t => t.id === this.pendingTaskId);
-            this.state.tasks = this.state.tasks.filter(t => t.id !== this.pendingTaskId);
-            this.state.activeTask = { id: task.id, title: task.title, stress: this.preflightData.stress, emo: this.preflightData.emo, reason: this.preflightData.reason, startTime: Date.now(), mode: mode, entries: [] };
-            this.closeSheet(); await this.awardPoints(10); await this.saveState(); this.goToPage(0);
-        },
+	        async launchTask(mode) {
+	            const task = this.state.tasks.find(t => t.id === this.pendingTaskId);
+	            if (!task) { this.closeSheet(); return; }
+	            this.state.tasks = this.state.tasks.filter(t => t.id !== this.pendingTaskId);
+	            this.state.activeTask = { id: task.id, title: task.title, stress: this.preflightData.stress, emo: this.preflightData.emo, reason: this.preflightData.reason, startTime: Date.now(), mode: mode, entries: [] };
+	            this.closeSheet(); await this.awardPoints(10); await this.saveState(); this.goToPage(0);
+	        },
 
         startTimerDisplay() {
             clearInterval(this.timerInterval);
