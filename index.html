@@ -54,12 +54,31 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
         
-        body { background-color: #000; display: flex; justify-content: center; height: 100dvh; width: 100vw; overflow: hidden; }
+        /* CORRECTIF PWA iOS : Verrouillage complet du Viewport */
+        html, body { 
+            height: 100%; 
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            background-color: var(--sys-bg); 
+            display: flex; 
+            justify-content: center; 
+            color: var(--sys-text);
+        }
 
+        /* App Frame (Centré sur iPad/Desktop, plein écran sur mobile) */
         .app-frame {
-            width: 100%; max-width: 600px; height: 100%;
-            background-color: var(--sys-bg); color: var(--sys-text);
-            display: flex; flex-direction: column; position: relative;
+            width: 100%; 
+            max-width: 600px; 
+            height: 100%;
+            background-color: var(--sys-bg); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
         }
 
         /* Mode Configuration (Setup) */
@@ -345,7 +364,7 @@
             let name = "Appareil Détecté";
             // Reconnaissance basique Apple
             if ((w === 375 && h >= 812) || (w >= 812 && h === 375)) name = "iPhone 11 Pro / X / 12 mini";
-            else if ((w === 390 && h === 844) || (w === 844 && h === 390)) name = "iPhone 12 / 13 / 14 Pro";
+            else if ((w === 390 && h === 844) || (w === 844 && h === 390)) name = "iPhone 12 / 13 / 14 / 15";
             else if ((w === 430 && h === 932) || (w === 932 && h === 430)) name = "iPhone 14 / 15 Pro Max";
             else if ((w === 393 && h === 852) || (w === 852 && h === 393)) name = "iPhone 14 / 15 Pro";
 
