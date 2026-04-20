@@ -2,13 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FlowDeck Pro - Édition TDAH</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FlowDeck">
+    
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
     
     <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
@@ -47,14 +49,12 @@
             }
         }
 
-        /* RESET de base */
         * { 
             box-sizing: border-box; margin: 0; padding: 0; 
             font-family: var(--font-stack);
             -webkit-tap-highlight-color: transparent; 
         }
 
-        /* FOND UNIFIÉ CLASSIQUE ET SOLIDE (100% compatible Safari) */
         html, body { 
             height: 100%; width: 100%; 
             margin: 0; padding: 0;
@@ -69,10 +69,8 @@
             transition: filter 0.5s ease;
         }
 
-        /* BORING MODE */
         body.boring-mode .app-frame { filter: grayscale(100%) contrast(0.9); }
 
-        /* HEADER */
         header {
             padding: calc(var(--safe-top) + 12px) 20px 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
@@ -84,14 +82,8 @@
             font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: 0.2s;
         }
 
-        /* STRUCTURE DES VUES */
         .views-container { flex: 1; position: relative; overflow: hidden; }
-        
-        .main-views-wrapper {
-            display: flex; width: 300%; height: 100%;
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
+        .main-views-wrapper { display: flex; width: 300%; height: 100%; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .page-view {
             width: 33.3333%; height: 100%; position: relative;
             overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
@@ -107,7 +99,6 @@
 
         body.setup-mode header, body.setup-mode .bottom-nav-area { display: none !important; }
 
-        /* Typography & Elements */
         h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.4px; }
         h3 { font-size: 14px; font-weight: 600; color: var(--sys-subtext); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;}
         
@@ -121,7 +112,6 @@
         button.btn-danger { background: var(--sys-red); }
         button.btn-ghost { background: transparent; color: var(--sys-subtext); width: 100%; padding: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
 
-        /* Triage Stack */
         .card-stack { position: relative; height: 350px; width: 100%; margin-top: 12px; perspective: 1000px; }
         .task-card {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--sys-surface); border-radius: 24px; padding: 32px 24px;
@@ -139,7 +129,6 @@
         .swipe-down-overlay { top: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-subtext); border-color: var(--sys-subtext); }
         .empty-stack { text-align: center; color: var(--sys-subtext); padding-top: 100px; }
 
-        /* Bottom Sheets */
         .sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
         .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: var(--sys-surface); border-radius: 24px 24px 0 0; padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
@@ -156,7 +145,6 @@
         .pill-btn.selected.stress-2 { background: var(--sys-orange); }
         .pill-btn.selected.stress-3 { background: var(--sys-red); }
 
-        /* UI Mode Focus */
         .active-task-banner { background: linear-gradient(135deg, var(--sys-blue), #5E5CE6); color: white; padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); text-align: center;}
         .active-task-banner.stress-2 { background: linear-gradient(135deg, var(--sys-orange), #D35400); box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);}
         .active-task-banner.stress-3 { background: linear-gradient(135deg, var(--sys-red), #C0392B); box-shadow: 0 8px 20px rgba(255, 59, 48, 0.3);}
@@ -174,37 +162,25 @@
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* ZONE NAV 100% COMPATIBLE SAFARI */
         .bottom-nav-area {
             position: absolute; bottom: 0; left: 0; right: 0;
             height: calc(50px + var(--safe-bottom)); 
-            background: transparent; /* Pas de fond blanc cassé */
+            background: transparent; 
             display: flex; justify-content: center; align-items: center;
             padding-bottom: var(--safe-bottom); 
             z-index: 100;
         }
 
         .dot-indicator {
-            position: relative; /* Indispensable pour la zone cliquable étendue */
+            position: relative; 
             width: 8px; height: 8px; border-radius: 50%;
             background-color: var(--sys-subtext); 
-            opacity: 0.3;
-            margin: 0 8px; 
-            transition: 0.2s ease-in-out;
-            cursor: pointer;
+            opacity: 0.3; margin: 0 8px; 
+            transition: 0.2s ease-in-out; cursor: pointer;
         }
 
-        /* Hack WebKit valide : Agrandi la zone de clic sans casser le rendu sur Safari */
-        .dot-indicator::after {
-            content: '';
-            position: absolute;
-            top: -15px; left: -15px; right: -15px; bottom: -15px;
-        }
-
-        .dot-indicator.active {
-            background-color: var(--sys-text); 
-            opacity: 0.85;
-        }
+        .dot-indicator::after { content: ''; position: absolute; top: -15px; left: -15px; right: -15px; bottom: -15px; }
+        .dot-indicator.active { background-color: var(--sys-text); opacity: 0.85; }
 
         .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
@@ -213,7 +189,6 @@
 <body>
 
 <div class="app-frame">
-    
     <header>
         <div class="header-date" id="header-date">Aujourd'hui</div>
         <div class="points-badge" id="points-badge">
@@ -223,7 +198,6 @@
     </header>
 
     <div class="views-container">
-        
         <div id="view-setup" class="standalone-view">
             <div style="display:flex; flex-direction:column; height:100%; justify-content:center; text-align:center;">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--sys-blue); margin: 0 auto 16px auto;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
@@ -234,14 +208,12 @@
         </div>
 
         <div class="main-views-wrapper" id="main-views">
-            
             <div class="page-view" id="page-main">
                 <div id="inbox-content">
                     <div class="input-group">
                         <input type="text" id="new-task-input" placeholder="Que devez-vous faire ?" autocomplete="off">
                         <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
                     </div>
-                    
                     <div class="card-stack" id="card-stack"></div>
                     <div id="empty-stack-msg" class="empty-stack">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -255,16 +227,13 @@
                         <h2 id="active-task-title">Nom de la tâche</h2>
                         <div class="live-timer" id="live-timer">00:00</div>
                     </div>
-
                     <h3>Journal Rapide (Distrait ?)</h3>
                     <div class="pill-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;">
                         <div class="pill-btn log-distraction" data-val="Ennui">🥱 Ennui</div>
                         <div class="pill-btn log-distraction" data-val="Anxiété">😰 Anxiété</div>
                         <div class="pill-btn log-distraction" data-val="Idée">💡 Idée</div>
                     </div>
-                    
                     <div class="journal-feed" id="journal-feed"></div>
-
                     <div style="height: 12px;"></div>
                     <button class="btn-primary btn-block btn-success" id="complete-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Terminer la tâche (+50)
@@ -278,10 +247,8 @@
                     <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Score total</span><strong id="stats-score" style="color: var(--sys-orange);">0</strong></div>
                     <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Tâches finies</span><strong id="stats-completed">0</strong></div>
                 </div>
-                
                 <h3>Modèles de Stress</h3>
                 <div id="pattern-feed" style="margin-bottom: 24px; color: var(--sys-subtext); font-size: 14px;"></div>
-
                 <h3>Historique récent</h3>
                 <div id="history-feed" style="margin-bottom: 24px;"></div>
             </div>
@@ -294,14 +261,12 @@
                     <h2 style="margin-bottom: 4px;">FlowDeck</h2>
                     <p style="color: var(--sys-subtext); font-size: 15px;">Édition TDAH</p>
                 </div>
-
                 <h3>Réglages Système</h3>
                 <div style="background: var(--sys-surface); border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
                     <button class="btn-ghost" id="reset-device-btn" style="color: var(--sys-blue); border-bottom: 1px solid var(--sys-border); text-align: left; padding: 16px 20px; font-weight: 400;">Réinitialiser l'application</button>
-                    <button class="btn-ghost" id="reset-btn" style="color: var(--sys-red); text-align: left; padding: 16px 20px; font-weight: 400;">Effacer toutes les données</button>
+                    <button class="btn-ghost" id="reset-btn" style="color: var(--sys-red); text-align: left; padding: 16px 20px; font-weight: 400;">Effacer la base de données</button>
                 </div>
             </div>
-            
         </div>
 
         <div class="sheet-overlay" id="sheet-overlay"></div>
@@ -314,7 +279,6 @@
                 <div class="pill-btn emoji" data-stress="2" data-emo="😣"><span>😣</span>Stressé</div>
                 <div class="pill-btn emoji" data-stress="3" data-emo="😨"><span>😨</span>Évitement</div>
             </div>
-
             <div id="intervention-zone" style="display: none; animation: floatUp 0.3s forwards;">
                 <hr style="border: 0; height: 1px; background: var(--sys-border); margin: 20px 0;">
                 <h3>Pourquoi ce blocage ?</h3>
@@ -324,7 +288,6 @@
                     <div class="pill-btn reason" data-val="Ennuyeux">🥱 Ennuyeux</div>
                     <div class="pill-btn reason" data-val="Peur">😨 Peur de rater</div>
                 </div>
-
                 <div style="height:12px;"></div>
                 <button class="btn-primary btn-block" id="action-2min" style="background: var(--sys-purple);">Faire la version de 2 Minutes</button>
                 <button class="btn-primary btn-block" id="action-break" style="background: var(--sys-blue);">Couper en plus petite étape</button>
@@ -338,44 +301,70 @@
         <div class="dot-indicator" data-index="1"></div>
         <div class="dot-indicator" data-index="2"></div>
     </div>
-
 </div>
 
 <script>
-    // Enregistrement PWA Service Worker
+    // 2. Enregistrement PWA Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').catch(() => {});
         });
     }
 
+    // 3. BASE DE DONNÉES INDEXEDDB (Robuste et Asynchrone)
+    const DB = {
+        name: 'FlowDeckDB', version: 1, storeName: 'appState',
+        init() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(this.name, this.version);
+                req.onupgradeneeded = (e) => e.target.result.createObjectStore(this.storeName);
+                req.onsuccess = (e) => resolve(e.target.result);
+                req.onerror = (e) => reject(e);
+            });
+        },
+        async save(state) {
+            const db = await this.init();
+            return new Promise(resolve => {
+                const tx = db.transaction(this.storeName, 'readwrite');
+                tx.objectStore(this.storeName).put(state, 'data');
+                tx.oncomplete = () => resolve();
+            });
+        },
+        async load() {
+            const db = await this.init();
+            return new Promise(resolve => {
+                const tx = db.transaction(this.storeName, 'readonly');
+                const req = tx.objectStore(this.storeName).get('data');
+                req.onsuccess = () => resolve(req.result || null);
+            });
+        },
+        async clear() {
+            const db = await this.init();
+            db.transaction(this.storeName, 'readwrite').objectStore(this.storeName).clear();
+        }
+    };
+
     const App = {
         state: { tasks: [], activeTask: null, history: [], points: 0, deviceSetup: false },
-        timerInterval: null, pendingTaskId: null,
-        preflightData: { stress: 0, emo: '', reason: '' },
-        currentPageIndex: 0,
+        timerInterval: null, pendingTaskId: null, preflightData: { stress: 0, emo: '', reason: '' }, currentPageIndex: 0,
 
         els: {
-            mainViews: document.getElementById('main-views'),
-            bottomNav: document.getElementById('bottom-nav'),
-            dots: document.querySelectorAll('.dot-indicator'),
-
+            mainViews: document.getElementById('main-views'), bottomNav: document.getElementById('bottom-nav'), dots: document.querySelectorAll('.dot-indicator'),
             headerDate: document.getElementById('header-date'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
-            
             inboxContent: document.getElementById('inbox-content'), focusContent: document.getElementById('focus-content'),
             taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'),
             activeTaskTitle: document.getElementById('active-task-title'), activeBanner: document.getElementById('active-banner'), liveTimer: document.getElementById('live-timer'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
-            
             statsScore: document.getElementById('stats-score'), statsCompleted: document.getElementById('stats-completed'), patternFeed: document.getElementById('pattern-feed'), historyFeed: document.getElementById('history-feed'),
-            
             sheetOverlay: document.getElementById('sheet-overlay'), preflightSheet: document.getElementById('preflight-sheet'), emotionGrid: document.getElementById('emotion-grid'), interventionZone: document.getElementById('intervention-zone'), blockReasonGrid: document.getElementById('block-reason-grid')
         },
 
-        init() {
+        async init() {
             const dateStr = new Intl.DateTimeFormat('fr-FR', {weekday: 'long', month: 'long', day: 'numeric'}).format(new Date());
             this.els.headerDate.textContent = dateStr;
             
-            this.loadState(); this.bindEvents(); this.updateUI(); 
+            await this.loadState(); 
+            this.bindEvents(); 
+            this.updateUI(); 
             
             if (!this.state.deviceSetup) this.launchSetup();
             else this.bootApp();
@@ -385,70 +374,58 @@
             document.body.classList.add('setup-mode');
             document.getElementById('view-setup').classList.add('active');
             
-            document.getElementById('confirm-setup-btn').onclick = () => {
-                this.vibrate(50); this.state.deviceSetup = true; this.saveState();
+            document.getElementById('confirm-setup-btn').onclick = async () => {
+                this.vibrate(50); this.state.deviceSetup = true; await this.saveState();
                 document.body.classList.remove('setup-mode'); 
                 document.getElementById('view-setup').classList.remove('active');
                 this.bootApp();
             };
         },
 
-        bootApp() {
-            this.goToPage(0);
+        bootApp() { this.goToPage(0); },
+        vibrate(ms = 50) { if (navigator.vibrate) navigator.vibrate(ms); },
+        
+        async loadState() {
+            const saved = await DB.load();
+            if (saved) this.state = { ...this.state, ...saved };
+        },
+        async saveState() {
+            await DB.save(this.state);
+            this.updateUI();
         },
 
-        vibrate(ms = 50) { if (navigator.vibrate) navigator.vibrate(ms); },
-        loadState() { const saved = localStorage.getItem('flowdeck_state'); if (saved) { try { this.state = { ...this.state, ...JSON.parse(saved) }; } catch(e) {} } },
-        saveState() { localStorage.setItem('flowdeck_state', JSON.stringify(this.state)); this.updateUI(); },
-
         bindEvents() {
-            let navStartX = 0;
-            let navCurrentX = 0;
+            let navStartX = 0; let navCurrentX = 0;
             
-            this.els.bottomNav.addEventListener('touchstart', e => {
-                navStartX = e.touches[0].clientX;
-                navCurrentX = navStartX;
-            }, {passive: true});
-
-            this.els.bottomNav.addEventListener('touchmove', e => {
-                navCurrentX = e.touches[0].clientX;
-            }, {passive: true});
-
+            this.els.bottomNav.addEventListener('touchstart', e => { navStartX = e.touches[0].clientX; navCurrentX = navStartX; }, {passive: true});
+            this.els.bottomNav.addEventListener('touchmove', e => { navCurrentX = e.touches[0].clientX; }, {passive: true});
             this.els.bottomNav.addEventListener('touchend', e => {
                 let diff = navStartX - navCurrentX;
-                if (diff > 50) {
-                    this.goToPage(this.currentPageIndex + 1);
-                } else if (diff < -50) {
-                    this.goToPage(this.currentPageIndex - 1);
-                }
+                if (diff > 50) this.goToPage(this.currentPageIndex + 1);
+                else if (diff < -50) this.goToPage(this.currentPageIndex - 1);
             });
 
-            this.els.dots.forEach((dot) => {
-                dot.addEventListener('click', (e) => {
-                    this.vibrate(15);
-                    this.goToPage(parseInt(e.target.dataset.index));
-                });
-            });
+            this.els.dots.forEach((dot) => { dot.addEventListener('click', (e) => { this.vibrate(15); this.goToPage(parseInt(e.target.dataset.index)); }); });
 
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
             
-            document.querySelectorAll('.log-distraction').forEach(btn => btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.log-distraction').forEach(btn => btn.addEventListener('click', async (e) => {
                 this.vibrate(30);
                 if(this.state.activeTask) {
                     this.state.activeTask.entries.push({ time: Date.now(), text: e.target.dataset.val });
-                    this.saveState(); this.renderJournalFeed(); this.awardPoints(2, e);
+                    await this.saveState(); this.renderJournalFeed(); this.awardPoints(2, e);
                 }
             }));
 
             this.els.completeBtn.addEventListener('click', (e) => this.completeTask(e));
             this.els.abandonBtn.addEventListener('click', () => this.abandonTask());
             
-            document.getElementById('reset-device-btn').addEventListener('click', () => {
-                this.state.deviceSetup = false; this.saveState(); location.reload();
+            document.getElementById('reset-device-btn').addEventListener('click', async () => {
+                this.state.deviceSetup = false; await this.saveState(); location.reload();
             });
-            document.getElementById('reset-btn').addEventListener('click', () => { 
-                if(confirm("Effacer toutes les données ?")) { localStorage.clear(); location.reload(); } 
+            document.getElementById('reset-btn').addEventListener('click', async () => { 
+                if(confirm("Effacer toutes les données ?")) { await DB.clear(); location.reload(); } 
             });
             
             this.els.sheetOverlay.addEventListener('click', () => this.closeSheet());
@@ -457,9 +434,7 @@
                 this.vibrate(20);
                 this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', `stress-${b.dataset.stress}`));
                 btn.classList.add('selected', `stress-${btn.dataset.stress}`);
-                
-                this.preflightData.stress = parseInt(btn.dataset.stress);
-                this.preflightData.emo = btn.dataset.emo;
+                this.preflightData.stress = parseInt(btn.dataset.stress); this.preflightData.emo = btn.dataset.emo;
                 
                 if (this.preflightData.stress >= 2) this.els.interventionZone.style.display = 'block';
                 else this.launchTask(null);
@@ -473,10 +448,10 @@
             }));
 
             document.getElementById('action-2min').addEventListener('click', () => this.launchTask('2min'));
-            document.getElementById('action-delay').addEventListener('click', () => {
+            document.getElementById('action-delay').addEventListener('click', async () => {
                 this.vibrate(50); const t = this.state.tasks.find(x => x.id === this.pendingTaskId);
                 if(t) t.delayed = true;
-                this.saveState(); this.renderMainView(); this.closeSheet();
+                await this.saveState(); this.renderMainView(); this.closeSheet();
             });
             document.getElementById('action-break').addEventListener('click', () => {
                 const step = prompt("Quelle est la toute petite première étape ?");
@@ -490,21 +465,16 @@
 
         goToPage(index) {
             if (index < 0 || index > 2) return; 
-            
             this.currentPageIndex = index;
             this.els.mainViews.style.transform = `translateX(-${index * 33.3333}%)`;
-            
-            this.els.dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
-
+            this.els.dots.forEach((dot, i) => { dot.classList.toggle('active', i === index); });
             if(index === 0) this.renderMainView();
             if(index === 1) this.renderAnalytics();
         },
 
         updateUI() { this.els.scoreDisplay.textContent = this.state.points; },
-        awardPoints(amount, e) {
-            this.state.points += amount; this.saveState();
+        async awardPoints(amount, e) {
+            this.state.points += amount; await this.saveState();
             this.els.pointsBadge.style.transform = 'scale(1.2)'; setTimeout(() => this.els.pointsBadge.style.transform = 'scale(1)', 200);
             const floater = document.createElement('div'); floater.className = 'floating-score'; floater.textContent = `+${amount}`;
             
@@ -520,41 +490,32 @@
 
         renderMainView() {
             if(this.state.activeTask) {
-                this.els.inboxContent.style.display = 'none';
-                this.els.focusContent.style.display = 'block';
+                this.els.inboxContent.style.display = 'none'; this.els.focusContent.style.display = 'block';
                 document.body.classList.add('boring-mode'); 
-                
                 this.els.activeTaskTitle.textContent = this.state.activeTask.title;
                 this.els.activeBanner.className = 'active-task-banner';
                 if(this.state.activeTask.stress >= 2) this.els.activeBanner.classList.add(`stress-${this.state.activeTask.stress}`);
                 
-                this.renderJournalFeed();
-                this.startTimerDisplay();
+                this.renderJournalFeed(); this.startTimerDisplay();
             } else {
-                this.els.focusContent.style.display = 'none';
-                this.els.inboxContent.style.display = 'block';
-                document.body.classList.remove('boring-mode');
-                clearInterval(this.timerInterval);
-                
+                this.els.focusContent.style.display = 'none'; this.els.inboxContent.style.display = 'block';
+                document.body.classList.remove('boring-mode'); clearInterval(this.timerInterval);
                 this.renderTasks();
             }
         },
 
-        /* TASKS */
-        addTask() {
+        async addTask() {
             const title = this.els.taskInput.value.trim(); if(!title) return;
             this.state.tasks.unshift({ id: Date.now().toString(), title, category: null, delayed: false });
             this.els.taskInput.value = ''; this.els.taskInput.blur();
-            this.saveState(); this.renderMainView();
+            await this.saveState(); this.renderMainView();
         },
 
-        deleteTask(id) { this.state.tasks = this.state.tasks.filter(t => t.id !== id); this.saveState(); this.renderMainView(); },
+        async deleteTask(id) { this.state.tasks = this.state.tasks.filter(t => t.id !== id); await this.saveState(); this.renderMainView(); },
 
         renderTasks() {
             this.els.cardStack.innerHTML = '';
-            if (this.state.tasks.length === 0) {
-                this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'block'; return;
-            }
+            if (this.state.tasks.length === 0) { this.els.cardStack.style.display = 'none'; this.els.emptyStackMsg.style.display = 'block'; return; }
             this.els.cardStack.style.display = 'block'; this.els.emptyStackMsg.style.display = 'none';
             
             const displayTasks = this.state.tasks.slice(0, 3).reverse();
@@ -568,8 +529,7 @@
             displayTasks.forEach((task, index) => {
                 const isTopCard = index === displayTasks.length - 1;
                 const card = document.createElement('div'); card.className = 'task-card';
-                card.style.zIndex = index; 
-                card.style.transform = `translateY(${(displayTasks.length - 1 - index) * 15}px) scale(${1 - ((displayTasks.length - 1 - index) * 0.05)})`;
+                card.style.zIndex = index; card.style.transform = `translateY(${(displayTasks.length - 1 - index) * 15}px) scale(${1 - ((displayTasks.length - 1 - index) * 0.05)})`;
                 
                 let badgeHtml = task.delayed ? `<div style="color: var(--sys-orange); font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">⏰ Reportée</div>` : '';
                 if (!task.delayed && task.category && catLabels[task.category]) {
@@ -590,7 +550,6 @@
                 if (isTopCard) this.initSwipeLogic(card, task.id);
                 const delBtn = card.querySelector('.card-delete-btn');
                 delBtn.addEventListener('click', (e) => { e.stopPropagation(); this.vibrate(50); this.deleteTask(task.id); });
-                
                 this.els.cardStack.appendChild(card);
             });
         },
@@ -623,10 +582,7 @@
                 if(!isDragging) return; isDragging = false; 
                 card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
 
-                if (!moved) {
-                    if(!e.target.closest('.card-delete-btn')) { this.vibrate(20); this.openPreflight(taskId); }
-                    return;
-                }
+                if (!moved) { if(!e.target.closest('.card-delete-btn')) { this.vibrate(20); this.openPreflight(taskId); } return; }
 
                 const absX = Math.abs(currentX), absY = Math.abs(currentY);
                 if (Math.max(absX, absY) > threshold) {
@@ -638,65 +594,41 @@
                         else { card.style.transform = `translate(${currentX}px, ${window.innerHeight}px) rotate(${currentX*0.05}deg)`; setTimeout(() => this.markTask(taskId, 'not-important'), 250); }
                     }
                     card.style.opacity = 0;
-                } else {
-                    card.style.transform = `translate(0px, 0px) scale(1)`; Object.values(overlays).forEach(o => o.style.opacity = 0);
-                }
+                } else { card.style.transform = `translate(0px, 0px) scale(1)`; Object.values(overlays).forEach(o => o.style.opacity = 0); }
             });
         },
 
-        markTask(id, category) {
+        async markTask(id, category) {
             this.vibrate([20, 40]); const index = this.state.tasks.findIndex(t => t.id === id);
             if (index > -1) {
                 const task = this.state.tasks.splice(index, 1)[0]; task.category = category; task.delayed = false;
-                this.state.tasks.push(task); this.saveState(); this.renderMainView();
+                this.state.tasks.push(task); await this.saveState(); this.renderMainView();
             }
         },
 
-        /* PREFLIGHT */
         openPreflight(id) {
-            this.pendingTaskId = id;
-            this.preflightData = { stress: 0, emo: '', reason: '' };
+            this.pendingTaskId = id; this.preflightData = { stress: 0, emo: '', reason: '' };
             this.els.emotionGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', `stress-${b.dataset.stress}`));
             this.els.blockReasonGrid.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('selected', 'stress-1'));
             this.els.interventionZone.style.display = 'none';
-            
-            this.els.sheetOverlay.classList.add('active');
-            this.els.preflightSheet.classList.add('active');
+            this.els.sheetOverlay.classList.add('active'); this.els.preflightSheet.classList.add('active');
         },
         
-        closeSheet() {
-            this.els.sheetOverlay.classList.remove('active');
-            this.els.preflightSheet.classList.remove('active');
-            this.pendingTaskId = null;
-        },
+        closeSheet() { this.els.sheetOverlay.classList.remove('active'); this.els.preflightSheet.classList.remove('active'); this.pendingTaskId = null; },
 
-        launchTask(mode) {
+        async launchTask(mode) {
             const task = this.state.tasks.find(t => t.id === this.pendingTaskId);
             this.state.tasks = this.state.tasks.filter(t => t.id !== this.pendingTaskId);
-            
-            this.state.activeTask = { 
-                id: task.id, title: task.title, 
-                stress: this.preflightData.stress, emo: this.preflightData.emo, reason: this.preflightData.reason,
-                startTime: Date.now(), mode: mode, entries: [] 
-            };
-            
-            this.closeSheet(); this.awardPoints(10); this.saveState(); 
-            this.goToPage(0);
+            this.state.activeTask = { id: task.id, title: task.title, stress: this.preflightData.stress, emo: this.preflightData.emo, reason: this.preflightData.reason, startTime: Date.now(), mode: mode, entries: [] };
+            this.closeSheet(); await this.awardPoints(10); await this.saveState(); this.goToPage(0);
         },
 
-        /* WORK */
         startTimerDisplay() {
             clearInterval(this.timerInterval);
             const update = () => {
                 let diff = Math.floor((Date.now() - this.state.activeTask.startTime) / 1000);
-                
-                if (this.state.activeTask.mode === '2min') {
-                    diff = 120 - diff;
-                    if (diff <= 0) { diff = 0; clearInterval(this.timerInterval); this.vibrate([100, 100, 100]); }
-                }
-                
-                const m = String(Math.floor(diff / 60)).padStart(2, '0');
-                const s = String(diff % 60).padStart(2, '0');
+                if (this.state.activeTask.mode === '2min') { diff = 120 - diff; if (diff <= 0) { diff = 0; clearInterval(this.timerInterval); this.vibrate([100, 100, 100]); } }
+                const m = String(Math.floor(diff / 60)).padStart(2, '0'); const s = String(diff % 60).padStart(2, '0');
                 this.els.liveTimer.textContent = `${m}:${s}`;
             };
             update(); this.timerInterval = setInterval(update, 1000);
@@ -712,39 +644,33 @@
             });
         },
 
-        completeTask(e) {
+        async completeTask(e) {
             if(!this.state.activeTask) return;
             this.vibrate([50, 100, 50, 100, 50]); clearInterval(this.timerInterval);
             this.state.history.unshift({ ...this.state.activeTask, endTime: Date.now() });
-            this.state.activeTask = null; this.awardPoints(50, e); this.saveState();
+            this.state.activeTask = null; await this.awardPoints(50, e); await this.saveState();
             this.renderMainView();
         },
 
-        abandonTask() {
+        async abandonTask() {
             if(!this.state.activeTask) return;
             this.vibrate(100); clearInterval(this.timerInterval);
             this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title, delayed: true});
-            this.state.activeTask = null; this.saveState();
+            this.state.activeTask = null; await this.saveState();
             this.renderMainView();
         },
 
-        /* ANALYTICS */
         renderAnalytics() {
-            this.els.statsScore.textContent = this.state.points; 
-            this.els.statsCompleted.textContent = this.state.history.length;
-            
+            this.els.statsScore.textContent = this.state.points; this.els.statsCompleted.textContent = this.state.history.length;
             const patterns = this.els.patternFeed;
             const highStressTasks = this.state.history.filter(h => h.stress >= 2);
             if (highStressTasks.length > 0) {
                 const reasons = highStressTasks.map(h => h.reason).reduce((acc, r) => { if(r) acc[r] = (acc[r]||0)+1; return acc; }, {});
                 const topReason = Object.keys(reasons).length > 0 ? Object.keys(reasons).reduce((a,b)=>reasons[a]>reasons[b]?a:b) : 'Inconnu';
                 patterns.innerHTML = `Vous avez surmonté ${highStressTasks.length} tâches très stressantes. Obstacle principal : <strong>${topReason}</strong>.`;
-            } else {
-                patterns.innerHTML = "Pas de modèle de stress détecté pour le moment. Bravo !";
-            }
+            } else patterns.innerHTML = "Pas de modèle de stress détecté pour le moment. Bravo !";
 
-            const histFeed = this.els.historyFeed;
-            histFeed.innerHTML = '';
+            const histFeed = this.els.historyFeed; histFeed.innerHTML = '';
             if(this.state.history.length === 0) { histFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 14px; text-align: center;">Aucun historique.</p>'; return; }
             
             this.state.history.slice(0,10).forEach(task => {
