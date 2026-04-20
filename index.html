@@ -26,7 +26,6 @@
             --sys-bg: #F2F2F7; --sys-surface: #FFFFFF; 
             --sys-text: #000000; --sys-subtext: #8E8E93;
             --sys-border: rgba(0,0,0,0.1); 
-            /* Apple Glass purifié pour la Tab Bar */
             --sys-glass: rgba(242, 242, 247, 0.85); 
             
             --cat-important-bg: #FFF9C4; --cat-important-text: #F57F17;
@@ -46,7 +45,6 @@
                 --sys-bg: #000000; --sys-surface: #1C1C1E; 
                 --sys-text: #FFFFFF; --sys-subtext: #98989D;
                 --sys-border: rgba(255,255,255,0.15); 
-                /* Apple Glass purifié pour le Mode Sombre */
                 --sys-glass: rgba(28, 28, 30, 0.85);
                 
                 --cat-important-bg: #403816; --cat-important-text: #FFF59D;
@@ -58,38 +56,28 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
         
-        /* FIX iOS COMPLET : Viewport verrouillé */
         html, body { 
-            height: 100%; 
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; 
-            position: fixed; 
-            top: 0; 
-            left: 0;
-            background-color: var(--sys-bg); 
-            display: flex; 
-            justify-content: center; 
-            color: var(--sys-text);
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            overflow: hidden; position: fixed; top: 0; left: 0;
+            background-color: var(--sys-bg); display: flex; justify-content: center; color: var(--sys-text);
         }
 
         /* App Frame */
         .app-frame {
-            width: 100%; 
-            max-width: 600px; 
-            height: 100%;
-            background-color: var(--sys-bg); 
-            display: flex; 
-            flex-direction: column; 
-            position: relative;
+            width: 100%; max-width: 600px; height: 100%;
+            background-color: var(--sys-bg); display: flex; flex-direction: column; position: relative;
+            transition: filter 0.5s ease; /* Transition douce pour le Boring Mode */
         }
 
-        /* Mode Configuration (Setup) */
+        /* BORING MODE (Grayscale global pendant le focus) */
+        body.boring-mode .app-frame {
+            filter: grayscale(100%) contrast(0.9);
+        }
+
+        /* Mode Setup */
         body.setup-mode header, body.setup-mode .tab-bar { display: none !important; }
         body.setup-mode .view { padding-bottom: 20px !important; bottom: 0 !important; }
 
-        /* Header Minimaliste */
         header {
             padding: calc(var(--safe-top) + 12px) 20px 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
@@ -101,12 +89,10 @@
             font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: 0.2s;
         }
 
-        /* Conteneur des Vues */
         .views-container { flex: 1; position: relative; overflow: hidden; }
         .view {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto; -webkit-overflow-scrolling: touch;
-            /* Espace calculé pour laisser respirer au-dessus de la Tab Bar Apple */
             padding: 12px 20px calc(70px + var(--safe-bottom)) 20px;
             opacity: 0; pointer-events: none; transform: translateX(20px);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -135,8 +121,8 @@
         }
         .task-card .task-title { font-size: 26px; font-weight: 700; margin-bottom: 16px; line-height: 1.2;}
         .task-card .task-hint { color: var(--sys-subtext); font-size: 13px; margin-top: auto; }
-        
         .card-delete-btn { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.05); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: var(--sys-subtext); z-index: 10; cursor: pointer;}
+        
         .swipe-overlay { position: absolute; font-size: 24px; font-weight: 800; text-transform: uppercase; border: 3px solid; border-radius: 12px; padding: 4px 12px; opacity: 0; pointer-events: none; }
         .swipe-right-overlay { top: 24px; left: 24px; color: var(--sys-red); border-color: var(--sys-red); transform: rotate(-15deg); }
         .swipe-left-overlay { top: 24px; right: 24px; color: var(--sys-blue); border-color: var(--sys-blue); transform: rotate(15deg); }
@@ -144,13 +130,12 @@
         .swipe-down-overlay { top: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-subtext); border-color: var(--sys-subtext); }
         .empty-stack { text-align: center; color: var(--sys-subtext); padding-top: 100px; }
 
-        /* Bottom Sheets (Modals) */
+        /* Bottom Sheets */
         .sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
         .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: var(--sys-surface); border-radius: 24px 24px 0 0; padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
         .bottom-sheet.active { transform: translateY(0); }
         
-        /* Boutons 1-Tap & Emojis */
         .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
         .pill-grid.emojis { grid-template-columns: repeat(5, 1fr); gap: 8px;}
         .pill-btn { background: var(--sys-bg); border: 2px solid transparent; color: var(--sys-text); padding: 12px; border-radius: 16px; font-size: 15px; font-weight: 600; text-align: center; transition: 0.1s; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;}
@@ -181,25 +166,15 @@
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* TAB BAR APPLE NATIVE (Proportions parfaites) */
+        /* TAB BAR APPLE */
         .tab-bar { 
             position: absolute; bottom: 0; left: 0; right: 0; 
-            /* Hauteur de 50px (Apple Std) + Zone Morte de sécurité */
             height: calc(50px + var(--safe-bottom)); 
-            background: var(--sys-glass); 
-            backdrop-filter: saturate(180%) blur(20px); 
-            -webkit-backdrop-filter: saturate(180%) blur(20px); 
-            /* Ligne supérieure subite d'un demi pixel */
-            border-top: 0.5px solid var(--sys-border); 
-            display: flex; justify-content: space-around; 
-            padding-bottom: var(--safe-bottom); /* Repousse les icônes en dehors de la zone morte */
-            z-index: 100; 
+            background: var(--sys-glass); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); 
+            border-top: 0.5px solid var(--sys-border); display: flex; justify-content: space-around; 
+            padding-bottom: var(--safe-bottom); z-index: 100; 
         }
-        .tab-item { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 50px; /* Les icônes restent confinées dans ces 50px */
-            color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; 
-        }
+        .tab-item { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50px; color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; }
         .tab-item.active { color: var(--sys-blue); }
         .tab-item svg { width: 24px; height: 24px; margin-bottom: 2px; stroke-width: 2;}
         .tab-item span { font-size: 10px; font-weight: 500; }
@@ -238,21 +213,22 @@
             </div>
         </div>
 
-        <div id="view-tasks" class="view">
-            <div class="input-group">
-                <input type="text" id="new-task-input" placeholder="Que devez-vous faire ?" autocomplete="off">
-                <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
-            </div>
+        <div id="view-main" class="view">
             
-            <div class="card-stack" id="card-stack"></div>
-            <div id="empty-stack-msg" class="empty-stack">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <p>Aucune tâche en attente !</p>
+            <div id="inbox-content">
+                <div class="input-group">
+                    <input type="text" id="new-task-input" placeholder="Que devez-vous faire ?" autocomplete="off">
+                    <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
+                </div>
+                
+                <div class="card-stack" id="card-stack"></div>
+                <div id="empty-stack-msg" class="empty-stack">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <p>Aucune tâche en attente !</p>
+                </div>
             </div>
-        </div>
 
-        <div id="view-work" class="view">
-            <div id="work-content">
+            <div id="focus-content" style="display: none;">
                 <div class="active-task-banner" id="active-banner">
                     <h3>Focus Actuel</h3>
                     <h2 id="active-task-title">Nom de la tâche</h2>
@@ -274,13 +250,10 @@
                 </button>
                 <button class="btn-ghost" id="abandon-btn">Abandonner</button>
             </div>
-            <div id="no-work-content" class="empty-stack">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <p>Aucune tâche active.</p>
-            </div>
+            
         </div>
 
-        <div id="view-settings" class="view">
+        <div id="view-analytics" class="view">
             <div style="display:flex; gap: 12px; margin-bottom: 24px;">
                 <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Score total</span><strong id="stats-score" style="color: var(--sys-orange);">0</strong></div>
                 <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Tâches finies</span><strong id="stats-completed">0</strong></div>
@@ -291,7 +264,17 @@
 
             <h3>Historique récent</h3>
             <div id="history-feed" style="margin-bottom: 24px;"></div>
-            
+        </div>
+
+        <div id="view-settings" class="view">
+            <div style="text-align: center; margin-bottom: 32px; padding-top: 24px;">
+                <div style="width: 80px; height: 80px; background: var(--sys-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px auto; font-weight: 700;">
+                    <span id="profile-initial">F</span>
+                </div>
+                <h2 style="margin-bottom: 4px;">FlowDeck</h2>
+                <p style="color: var(--sys-subtext); font-size: 15px;">Édition TDAH</p>
+            </div>
+
             <h3>Réglages Système</h3>
             <div style="background: var(--sys-surface); border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
                 <button class="btn-ghost" id="reset-device-btn" style="color: var(--sys-blue); border-bottom: 1px solid var(--sys-border); text-align: left; padding: 16px 20px; font-weight: 400;">Réinitialiser l'écran (Calibration)</button>
@@ -329,13 +312,13 @@
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" data-target="view-tasks">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <span>Inbox</span>
-        </div>
-        <div class="tab-item" data-target="view-work">
+        <div class="tab-item active" data-target="view-main">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-            <span>Focus</span>
+            <span>Accueil</span>
+        </div>
+        <div class="tab-item" data-target="view-analytics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Analytics</span>
         </div>
         <div class="tab-item" data-target="view-settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -354,24 +337,27 @@
         els: {
             views: document.querySelectorAll('.view'), tabs: document.querySelectorAll('.tab-item'),
             headerDate: document.getElementById('header-date'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
+            
+            // Main View (Inbox & Focus)
+            inboxContent: document.getElementById('inbox-content'), focusContent: document.getElementById('focus-content'),
             taskInput: document.getElementById('new-task-input'), addTaskBtn: document.getElementById('add-task-btn'), cardStack: document.getElementById('card-stack'), emptyStackMsg: document.getElementById('empty-stack-msg'),
-            workContent: document.getElementById('work-content'), noWorkContent: document.getElementById('no-work-content'), activeTaskTitle: document.getElementById('active-task-title'), activeBanner: document.getElementById('active-banner'), liveTimer: document.getElementById('live-timer'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
+            activeTaskTitle: document.getElementById('active-task-title'), activeBanner: document.getElementById('active-banner'), liveTimer: document.getElementById('live-timer'), journalFeed: document.getElementById('journal-feed'), completeBtn: document.getElementById('complete-btn'), abandonBtn: document.getElementById('abandon-btn'),
+            
+            // Analytics
+            statsScore: document.getElementById('stats-score'), statsCompleted: document.getElementById('stats-completed'), patternFeed: document.getElementById('pattern-feed'), historyFeed: document.getElementById('history-feed'),
+            
+            // Overlays
             sheetOverlay: document.getElementById('sheet-overlay'), preflightSheet: document.getElementById('preflight-sheet'), emotionGrid: document.getElementById('emotion-grid'), interventionZone: document.getElementById('intervention-zone'), blockReasonGrid: document.getElementById('block-reason-grid')
         },
 
         init() {
-            // Date en français
             const dateStr = new Intl.DateTimeFormat('fr-FR', {weekday: 'long', month: 'long', day: 'numeric'}).format(new Date());
             this.els.headerDate.textContent = dateStr;
             
             this.loadState(); this.bindEvents(); this.updateUI(); 
             
-            // Logique de démarrage (Setup ou App)
-            if (!this.state.deviceSetup) {
-                this.launchSetup();
-            } else {
-                this.bootApp();
-            }
+            if (!this.state.deviceSetup) this.launchSetup();
+            else this.bootApp();
         },
 
         launchSetup() {
@@ -381,7 +367,6 @@
             
             const w = window.innerWidth; const h = window.innerHeight;
             let name = "Appareil Détecté";
-            // Reconnaissance basique Apple
             if ((w === 375 && h >= 812) || (w >= 812 && h === 375)) name = "iPhone 11 Pro / X / 12 mini";
             else if ((w === 390 && h === 844) || (w === 844 && h === 390)) name = "iPhone 12 / 13 / 14 / 15";
             else if ((w === 430 && h === 932) || (w === 932 && h === 430)) name = "iPhone 14 / 15 Pro Max";
@@ -391,24 +376,15 @@
             document.getElementById('detected-resolution').textContent = `${w} x ${h} pixels`;
 
             document.getElementById('confirm-setup-btn').onclick = () => {
-                this.vibrate(50);
-                this.state.deviceSetup = true;
-                this.saveState();
-                document.body.classList.remove('setup-mode');
-                this.bootApp();
+                this.vibrate(50); this.state.deviceSetup = true; this.saveState();
+                document.body.classList.remove('setup-mode'); this.bootApp();
             };
         },
 
         bootApp() {
-            this.renderTasks();
-            if(this.state.activeTask) {
-                const workTab = document.querySelector('.tab-item[data-target="view-work"]');
-                this.switchTab('view-work', workTab);
-                this.startTimerDisplay();
-            } else {
-                const taskTab = document.querySelector('.tab-item[data-target="view-tasks"]');
-                this.switchTab('view-tasks', taskTab);
-            }
+            this.renderMainView();
+            const mainTab = document.querySelector('.tab-item[data-target="view-main"]');
+            this.switchTab('view-main', mainTab);
         },
 
         vibrate(ms = 50) { if (navigator.vibrate) navigator.vibrate(ms); },
@@ -463,7 +439,7 @@
             document.getElementById('action-delay').addEventListener('click', () => {
                 this.vibrate(50); const t = this.state.tasks.find(x => x.id === this.pendingTaskId);
                 if(t) t.delayed = true;
-                this.saveState(); this.renderTasks(); this.closeSheet();
+                this.saveState(); this.renderMainView(); this.closeSheet();
             });
             document.getElementById('action-break').addEventListener('click', () => {
                 const step = prompt("Quelle est la toute petite première étape ?");
@@ -476,15 +452,11 @@
         },
 
         switchTab(targetId, tabEl) {
-            if (targetId === 'view-tasks' && this.state.activeTask) {
-                alert("Vous avez une tâche en cours. Restez concentré !"); return;
-            }
             this.els.tabs.forEach(t => t.classList.remove('active')); tabEl.classList.add('active');
             this.els.views.forEach(v => v.classList.remove('active')); document.getElementById(targetId).classList.add('active');
             
-            if(targetId === 'view-tasks') this.renderTasks();
-            if(targetId === 'view-work') this.renderWorkView();
-            if(targetId === 'view-settings') this.renderSettings();
+            if(targetId === 'view-main') this.renderMainView();
+            if(targetId === 'view-analytics') this.renderAnalytics();
         },
 
         updateUI() { this.els.scoreDisplay.textContent = this.state.points; },
@@ -503,15 +475,40 @@
             setTimeout(() => floater.remove(), 1000);
         },
 
+        /* VUE PRINCIPALE (GESTION INBOX / FOCUS & BORING MODE) */
+        renderMainView() {
+            if(this.state.activeTask) {
+                // Mode Focus (Actif)
+                this.els.inboxContent.style.display = 'none';
+                this.els.focusContent.style.display = 'block';
+                document.body.classList.add('boring-mode'); // Déclenche le Grayscale
+                
+                this.els.activeTaskTitle.textContent = this.state.activeTask.title;
+                this.els.activeBanner.className = 'active-task-banner';
+                if(this.state.activeTask.stress >= 2) this.els.activeBanner.classList.add(`stress-${this.state.activeTask.stress}`);
+                
+                this.renderJournalFeed();
+                this.startTimerDisplay();
+            } else {
+                // Mode Inbox (Repos)
+                this.els.focusContent.style.display = 'none';
+                this.els.inboxContent.style.display = 'block';
+                document.body.classList.remove('boring-mode'); // Retire le Grayscale
+                clearInterval(this.timerInterval);
+                
+                this.renderTasks();
+            }
+        },
+
         /* TASKS */
         addTask() {
             const title = this.els.taskInput.value.trim(); if(!title) return;
             this.state.tasks.unshift({ id: Date.now().toString(), title, category: null, delayed: false });
             this.els.taskInput.value = ''; this.els.taskInput.blur();
-            this.saveState(); this.renderTasks();
+            this.saveState(); this.renderMainView();
         },
 
-        deleteTask(id) { this.state.tasks = this.state.tasks.filter(t => t.id !== id); this.saveState(); this.renderTasks(); },
+        deleteTask(id) { this.state.tasks = this.state.tasks.filter(t => t.id !== id); this.saveState(); this.renderMainView(); },
 
         renderTasks() {
             this.els.cardStack.innerHTML = '';
@@ -611,7 +608,7 @@
             this.vibrate([20, 40]); const index = this.state.tasks.findIndex(t => t.id === id);
             if (index > -1) {
                 const task = this.state.tasks.splice(index, 1)[0]; task.category = category; task.delayed = false;
-                this.state.tasks.push(task); this.saveState(); this.renderTasks();
+                this.state.tasks.push(task); this.saveState(); this.renderMainView();
             }
         },
 
@@ -644,8 +641,7 @@
             };
             
             this.closeSheet(); this.awardPoints(10); this.saveState(); 
-            this.switchTab('view-work', document.querySelector('.tab-item[data-target="view-work"]'));
-            this.startTimerDisplay();
+            this.switchTab('view-main', document.querySelector('.tab-item[data-target="view-main"]'));
         },
 
         /* WORK */
@@ -666,21 +662,6 @@
             update(); this.timerInterval = setInterval(update, 1000);
         },
 
-        renderWorkView() {
-            if(this.state.activeTask) {
-                this.els.workContent.style.display = 'block'; this.els.noWorkContent.style.display = 'none';
-                this.els.activeTaskTitle.textContent = this.state.activeTask.title;
-                
-                this.els.activeBanner.className = 'active-task-banner';
-                if(this.state.activeTask.stress >= 2) this.els.activeBanner.classList.add(`stress-${this.state.activeTask.stress}`);
-                
-                this.renderJournalFeed();
-            } else {
-                this.els.workContent.style.display = 'none'; this.els.noWorkContent.style.display = 'block';
-                clearInterval(this.timerInterval);
-            }
-        },
-
         renderJournalFeed() {
             this.els.journalFeed.innerHTML = '';
             [...this.state.activeTask.entries].reverse().forEach(entry => {
@@ -696,7 +677,7 @@
             this.vibrate([50, 100, 50, 100, 50]); clearInterval(this.timerInterval);
             this.state.history.unshift({ ...this.state.activeTask, endTime: Date.now() });
             this.state.activeTask = null; this.awardPoints(50, e); this.saveState();
-            this.switchTab('view-tasks', document.querySelector('.tab-item[data-target="view-tasks"]'));
+            this.renderMainView();
         },
 
         abandonTask() {
@@ -704,16 +685,15 @@
             this.vibrate(100); clearInterval(this.timerInterval);
             this.state.tasks.unshift({id: this.state.activeTask.id, title: this.state.activeTask.title, delayed: true});
             this.state.activeTask = null; this.saveState();
-            this.switchTab('view-tasks', document.querySelector('.tab-item[data-target="view-tasks"]'));
+            this.renderMainView();
         },
 
-        /* PROFILE */
-        renderSettings() {
-            this.els.scoreDisplay.textContent = this.state.points;
-            document.getElementById('stats-score').textContent = this.state.points; 
-            document.getElementById('stats-completed').textContent = this.state.history.length;
+        /* ANALYTICS */
+        renderAnalytics() {
+            this.els.statsScore.textContent = this.state.points; 
+            this.els.statsCompleted.textContent = this.state.history.length;
             
-            const patterns = document.getElementById('pattern-feed');
+            const patterns = this.els.patternFeed;
             const highStressTasks = this.state.history.filter(h => h.stress >= 2);
             if (highStressTasks.length > 0) {
                 const reasons = highStressTasks.map(h => h.reason).reduce((acc, r) => { if(r) acc[r] = (acc[r]||0)+1; return acc; }, {});
@@ -723,7 +703,7 @@
                 patterns.innerHTML = "Pas de modèle de stress détecté pour le moment. Bravo !";
             }
 
-            const histFeed = document.getElementById('history-feed');
+            const histFeed = this.els.historyFeed;
             histFeed.innerHTML = '';
             if(this.state.history.length === 0) { histFeed.innerHTML = '<p style="color: var(--sys-subtext); font-size: 14px; text-align: center;">Aucun historique.</p>'; return; }
             
