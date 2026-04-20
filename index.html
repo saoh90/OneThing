@@ -25,7 +25,9 @@
             --sys-orange: #FF9500; --sys-purple: #AF52DE; --sys-teal: #5AC8FA;
             --sys-bg: #F2F2F7; --sys-surface: #FFFFFF; 
             --sys-text: #000000; --sys-subtext: #8E8E93;
-            --sys-border: rgba(0,0,0,0.1); --sys-glass: rgba(255,255,255,0.85);
+            --sys-border: rgba(0,0,0,0.1); 
+            /* Apple Glass purifié pour la Tab Bar */
+            --sys-glass: rgba(242, 242, 247, 0.85); 
             
             --cat-important-bg: #FFF9C4; --cat-important-text: #F57F17;
             --cat-not-important-bg: #F5F5F5; --cat-not-important-text: #9E9E9E;
@@ -43,7 +45,9 @@
                 --sys-orange: #FF9F0A; --sys-purple: #BF5AF2; --sys-teal: #64D2FF;
                 --sys-bg: #000000; --sys-surface: #1C1C1E; 
                 --sys-text: #FFFFFF; --sys-subtext: #98989D;
-                --sys-border: rgba(255,255,255,0.15); --sys-glass: rgba(28,28,30,0.85);
+                --sys-border: rgba(255,255,255,0.15); 
+                /* Apple Glass purifié pour le Mode Sombre */
+                --sys-glass: rgba(28, 28, 30, 0.85);
                 
                 --cat-important-bg: #403816; --cat-important-text: #FFF59D;
                 --cat-not-important-bg: #2C2C2E; --cat-not-important-text: #8E8E93;
@@ -54,7 +58,7 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
         
-        /* CORRECTIF PWA iOS : Verrouillage complet du Viewport */
+        /* FIX iOS COMPLET : Viewport verrouillé */
         html, body { 
             height: 100%; 
             width: 100%;
@@ -70,7 +74,7 @@
             color: var(--sys-text);
         }
 
-        /* App Frame (Centré sur iPad/Desktop, plein écran sur mobile) */
+        /* App Frame */
         .app-frame {
             width: 100%; 
             max-width: 600px; 
@@ -102,7 +106,8 @@
         .view {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto; -webkit-overflow-scrolling: touch;
-            padding: 12px 20px 120px 20px;
+            /* Espace calculé pour laisser respirer au-dessus de la Tab Bar Apple */
+            padding: 12px 20px calc(70px + var(--safe-bottom)) 20px;
             opacity: 0; pointer-events: none; transform: translateX(20px);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
@@ -176,17 +181,28 @@
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* Tab Bar Apple Fluide */
+        /* TAB BAR APPLE NATIVE (Proportions parfaites) */
         .tab-bar { 
             position: absolute; bottom: 0; left: 0; right: 0; 
-            background: var(--sys-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            border-top: 1px solid var(--sys-border); display: flex; justify-content: space-around; 
-            align-items: center; z-index: 100; padding-top: 12px; 
-            padding-bottom: calc(12px + var(--safe-bottom)); 
+            /* Hauteur de 50px (Apple Std) + Zone Morte de sécurité */
+            height: calc(50px + var(--safe-bottom)); 
+            background: var(--sys-glass); 
+            backdrop-filter: saturate(180%) blur(20px); 
+            -webkit-backdrop-filter: saturate(180%) blur(20px); 
+            /* Ligne supérieure subite d'un demi pixel */
+            border-top: 0.5px solid var(--sys-border); 
+            display: flex; justify-content: space-around; 
+            padding-bottom: var(--safe-bottom); /* Repousse les icônes en dehors de la zone morte */
+            z-index: 100; 
         }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; }
+        .tab-item { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 50px; /* Les icônes restent confinées dans ces 50px */
+            color: var(--sys-subtext); width: 33%; cursor: pointer; transition: color 0.2s; 
+        }
         .tab-item.active { color: var(--sys-blue); }
-        .tab-item svg { width: 26px; height: 26px; margin-bottom: 4px; stroke-width: 2;}
+        .tab-item svg { width: 24px; height: 24px; margin-bottom: 2px; stroke-width: 2;}
+        .tab-item span { font-size: 10px; font-weight: 500; }
 
         .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
@@ -315,12 +331,15 @@
     <nav class="tab-bar">
         <div class="tab-item active" data-target="view-tasks">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Inbox</span>
         </div>
         <div class="tab-item" data-target="view-work">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+            <span>Focus</span>
         </div>
         <div class="tab-item" data-target="view-settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profil</span>
         </div>
     </nav>
 
