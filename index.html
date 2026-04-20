@@ -47,34 +47,36 @@
             }
         }
 
+        /* RESET de base */
         * { 
             box-sizing: border-box; margin: 0; padding: 0; 
             font-family: var(--font-stack);
             -webkit-tap-highlight-color: transparent; 
         }
-        
-        /* Architecture standard et stable pour PWA */
+
+        /* FOND UNIFIÉ CLASSIQUE ET SOLIDE (100% compatible Safari) */
         html, body { 
-            height: 100%; width: 100%; margin: 0; padding: 0;
+            height: 100%; width: 100%; 
+            margin: 0; padding: 0;
             overflow: hidden; position: fixed; top: 0; left: 0;
             background-color: var(--sys-bg); display: flex; justify-content: center; color: var(--sys-text);
         }
 
         .app-frame {
             width: 100%; max-width: 600px; height: 100%;
-            background-color: var(--sys-bg); 
+            background-color: transparent; 
             display: flex; flex-direction: column; position: relative;
             transition: filter 0.5s ease;
         }
 
-        /* BORING MODE (Grayscale global pendant le focus) */
+        /* BORING MODE */
         body.boring-mode .app-frame { filter: grayscale(100%) contrast(0.9); }
 
         /* HEADER */
         header {
             padding: calc(var(--safe-top) + 12px) 20px 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
-            z-index: 100; background: var(--sys-bg);
+            z-index: 100;
         }
         .header-date { font-weight: 700; font-size: 22px; letter-spacing: -0.5px; color: var(--sys-text); text-transform: capitalize; }
         .points-badge {
@@ -137,7 +139,7 @@
         .swipe-down-overlay { top: 24px; left: 50%; transform: translateX(-50%); color: var(--sys-subtext); border-color: var(--sys-subtext); }
         .empty-stack { text-align: center; color: var(--sys-subtext); padding-top: 100px; }
 
-        /* Bottom Sheets (Preflight Modal) */
+        /* Bottom Sheets */
         .sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
         .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: var(--sys-surface); border-radius: 24px 24px 0 0; padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
@@ -172,26 +174,31 @@
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* ZONE NAV : Propre, sans blocage des interactions natives */
+        /* ZONE NAV 100% COMPATIBLE SAFARI */
         .bottom-nav-area {
             position: absolute; bottom: 0; left: 0; right: 0;
             height: calc(50px + var(--safe-bottom)); 
-            background-color: var(--sys-bg); /* Fond propre pour cacher le texte défilant */
+            background: transparent; /* Pas de fond blanc cassé */
             display: flex; justify-content: center; align-items: center;
             padding-bottom: var(--safe-bottom); 
             z-index: 100;
         }
 
         .dot-indicator {
+            position: relative; /* Indispensable pour la zone cliquable étendue */
             width: 8px; height: 8px; border-radius: 50%;
             background-color: var(--sys-subtext); 
             opacity: 0.3;
-            margin: 0 5px; 
+            margin: 0 8px; 
             transition: 0.2s ease-in-out;
             cursor: pointer;
-            /* Agrandit la zone cliquable sans modifier le visuel */
-            padding: 10px;
-            background-clip: content-box;
+        }
+
+        /* Hack WebKit valide : Agrandi la zone de clic sans casser le rendu sur Safari */
+        .dot-indicator::after {
+            content: '';
+            position: absolute;
+            top: -15px; left: -15px; right: -15px; bottom: -15px;
         }
 
         .dot-indicator.active {
