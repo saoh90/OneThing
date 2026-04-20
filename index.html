@@ -26,7 +26,6 @@
             --sys-bg: #F2F2F7; --sys-surface: #FFFFFF; 
             --sys-text: #000000; --sys-subtext: #8E8E93;
             --sys-border: rgba(0,0,0,0.1); 
-            --sys-glass: rgba(255, 255, 255, 0.85); 
             
             --cat-important-bg: #FFF9C4; --cat-important-text: #F57F17;
             --cat-not-important-bg: #F5F5F5; --cat-not-important-text: #9E9E9E;
@@ -45,7 +44,6 @@
                 --sys-bg: #000000; --sys-surface: #1C1C1E; 
                 --sys-text: #FFFFFF; --sys-subtext: #98989D;
                 --sys-border: rgba(255,255,255,0.15); 
-                --sys-glass: rgba(28, 28, 30, 0.85);
                 
                 --cat-important-bg: #403816; --cat-important-text: #FFF59D;
                 --cat-not-important-bg: #2C2C2E; --cat-not-important-text: #8E8E93;
@@ -56,6 +54,7 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: var(--font-stack); }
         
+        /* FIX iOS COMPLET : Viewport verrouillé & Fond Unifié */
         html, body { 
             height: 100%; width: 100%; margin: 0; padding: 0;
             overflow: hidden; position: fixed; top: 0; left: 0;
@@ -69,14 +68,9 @@
         }
 
         /* BORING MODE (Grayscale global pendant le focus) */
-        body.boring-mode .app-frame {
-            filter: grayscale(100%) contrast(0.9);
-        }
+        body.boring-mode .app-frame { filter: grayscale(100%) contrast(0.9); }
 
-        /* Mode Setup */
-        body.setup-mode header, body.setup-mode #fab-nav { display: none !important; }
-        body.setup-mode .view { padding-bottom: 20px !important; bottom: 0 !important; }
-
+        /* HEADER */
         header {
             padding: calc(var(--safe-top) + 12px) 20px 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
@@ -88,17 +82,31 @@
             font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: 0.2s;
         }
 
-        .views-container { flex: 1; position: relative; overflow: hidden; }
-        .view {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            overflow-y: auto; -webkit-overflow-scrolling: touch;
-            /* Espace suffisant pour ne pas bloquer le contenu sous le FAB */
-            padding: 12px 20px calc(100px + var(--safe-bottom)) 20px;
-            opacity: 0; pointer-events: none; transform: translateX(20px);
-            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        /* STRUCTURE DES VUES (Sliding Pages) */
+        .views-container { flex: 1; position: relative; overflow: hidden; background: var(--sys-bg); }
+        
+        .main-views-wrapper {
+            display: flex; width: 300%; height: 100%;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .view.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
 
+        .page-view {
+            width: 33.3333%; height: 100%; position: relative;
+            overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+            padding: 12px 20px calc(80px + var(--safe-bottom)) 20px;
+        }
+
+        .standalone-view {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--sys-bg); z-index: 50; display: none;
+            padding: 20px; overflow-y: auto;
+        }
+        .standalone-view.active { display: block; }
+
+        /* Setup Modifiers */
+        body.setup-mode header, body.setup-mode .bottom-nav-area { display: none !important; }
+
+        /* Typography & Elements */
         h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.4px; }
         h3 { font-size: 14px; font-weight: 600; color: var(--sys-subtext); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;}
         
@@ -165,83 +173,28 @@
         .history-item .meta { font-size: 13px; color: var(--sys-subtext); margin-top: 4px;}
         .stress-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px;}
 
-        /* FLOATING ACTION BUTTON (FAB) NAVIGATION */
-        .fab-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-            z-index: 190; opacity: 0; pointer-events: none; transition: 0.3s ease;
-        }
-        .fab-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .fab-container {
-            position: absolute;
-            bottom: calc(20px + var(--safe-bottom));
-            right: 20px;
-            display: flex;
-            flex-direction: column-reverse;
-            align-items: flex-end;
-            z-index: 200;
+        /* NOUVEAU: NAVIGATION PAR POINTS & SLIDE (Unifié, Sans Gradient) */
+        .bottom-nav-area {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background-color: var(--sys-bg); /* Couleur unie identique au fond */
+            display: flex; justify-content: center; align-items: flex-start;
+            padding-top: 24px;
+            padding-bottom: calc(16px + var(--safe-bottom)); 
+            z-index: 100;
+            /* Empêche le navigateur de capturer les gestes à cet endroit */
+            touch-action: none; 
         }
 
-        .fab-main {
-            width: 56px; height: 56px;
-            border-radius: 28px;
-            background: var(--sys-blue);
-            color: white;
-            border: none;
-            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.4);
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer; z-index: 2;
-            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .fab-main:active { transform: scale(0.9); }
-        .fab-main svg { width: 24px; height: 24px; stroke-width: 2.5; transition: 0.3s; }
-        .fab-main .icon-close { display: none; }
-        
-        .fab-container.open .fab-main { background: var(--sys-surface); color: var(--sys-text); transform: rotate(90deg); box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
-        .fab-container.open .fab-main .icon-menu { display: none; }
-        .fab-container.open .fab-main .icon-close { display: block; }
-
-        .fab-menu {
-            display: flex; flex-direction: column; align-items: flex-end;
-            margin-bottom: 16px;
-            pointer-events: none;
+        .dot-indicator {
+            width: 8px; height: 8px; border-radius: 4px;
+            background-color: var(--sys-subtext); opacity: 0.4;
+            margin: 0 6px; transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
         }
 
-        .fab-item {
-            display: flex; align-items: center; justify-content: flex-end; gap: 12px;
-            margin-bottom: 16px;
-            background: transparent; border: none; cursor: pointer;
-            opacity: 0; transform: translateY(20px);
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .dot-indicator.active {
+            width: 24px; background-color: var(--sys-text); opacity: 1;
         }
-        
-        .fab-item-label {
-            background: var(--sys-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 8px 16px; border-radius: 12px;
-            font-size: 14px; font-weight: 600; color: var(--sys-text);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .fab-item-icon {
-            width: 48px; height: 48px; border-radius: 24px;
-            background: var(--sys-surface); color: var(--sys-subtext);
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border: 2px solid transparent;
-        }
-        .fab-item-icon svg { width: 20px; height: 20px; stroke-width: 2; }
-        
-        /* État Actif d'un bouton du menu */
-        .fab-item.active .fab-item-icon { color: var(--sys-blue); border-color: var(--sys-blue); }
-        .fab-item.active .fab-item-label { color: var(--sys-blue); }
-
-        /* Animation d'ouverture du menu en cascade */
-        .fab-container.open .fab-menu { pointer-events: auto; }
-        .fab-container.open .fab-item { opacity: 1; transform: translateY(0); }
-        .fab-container.open .fab-item:nth-child(1) { transition-delay: 0.1s; }
-        .fab-container.open .fab-item:nth-child(2) { transition-delay: 0.05s; }
-        .fab-container.open .fab-item:nth-child(3) { transition-delay: 0s; }
 
         .floating-score { position: fixed; color: var(--sys-orange); font-weight: 800; font-size: 24px; pointer-events: none; z-index: 1000; animation: floatUp 1s forwards; }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
@@ -261,7 +214,7 @@
 
     <div class="views-container">
         
-        <div id="view-setup" class="view">
+        <div id="view-setup" class="standalone-view">
             <div style="display:flex; flex-direction:column; height:100%; justify-content:center; text-align:center;">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--sys-blue); margin: 0 auto 16px auto;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
                 <h1 style="font-size: 32px; margin-bottom: 8px; letter-spacing: -1px;">Configuration</h1>
@@ -277,73 +230,75 @@
             </div>
         </div>
 
-        <div id="view-main" class="view">
+        <div class="main-views-wrapper" id="main-views">
             
-            <div id="inbox-content">
-                <div class="input-group">
-                    <input type="text" id="new-task-input" placeholder="Que devez-vous faire ?" autocomplete="off">
-                    <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
+            <div class="page-view" id="page-main">
+                <div id="inbox-content">
+                    <div class="input-group">
+                        <input type="text" id="new-task-input" placeholder="Que devez-vous faire ?" autocomplete="off">
+                        <button class="btn-primary" id="add-task-btn" style="padding: 12px; border-radius: 12px; margin: 0;">+</button>
+                    </div>
+                    
+                    <div class="card-stack" id="card-stack"></div>
+                    <div id="empty-stack-msg" class="empty-stack">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <p>Aucune tâche en attente !</p>
+                    </div>
+                </div>
+
+                <div id="focus-content" style="display: none;">
+                    <div class="active-task-banner" id="active-banner">
+                        <h3>Focus Actuel</h3>
+                        <h2 id="active-task-title">Nom de la tâche</h2>
+                        <div class="live-timer" id="live-timer">00:00</div>
+                    </div>
+
+                    <h3>Journal Rapide (Distrait ?)</h3>
+                    <div class="pill-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                        <div class="pill-btn log-distraction" data-val="Ennui">🥱 Ennui</div>
+                        <div class="pill-btn log-distraction" data-val="Anxiété">😰 Anxiété</div>
+                        <div class="pill-btn log-distraction" data-val="Idée">💡 Idée</div>
+                    </div>
+                    
+                    <div class="journal-feed" id="journal-feed"></div>
+
+                    <div style="height: 12px;"></div>
+                    <button class="btn-primary btn-block btn-success" id="complete-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Terminer la tâche (+50)
+                    </button>
+                    <button class="btn-ghost" id="abandon-btn">Abandonner</button>
+                </div>
+            </div>
+
+            <div class="page-view" id="page-analytics">
+                <div style="display:flex; gap: 12px; margin-bottom: 24px;">
+                    <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Score total</span><strong id="stats-score" style="color: var(--sys-orange);">0</strong></div>
+                    <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Tâches finies</span><strong id="stats-completed">0</strong></div>
                 </div>
                 
-                <div class="card-stack" id="card-stack"></div>
-                <div id="empty-stack-msg" class="empty-stack">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: var(--sys-subtext);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    <p>Aucune tâche en attente !</p>
-                </div>
+                <h3>Modèles de Stress</h3>
+                <div id="pattern-feed" style="margin-bottom: 24px; color: var(--sys-subtext); font-size: 14px;"></div>
+
+                <h3>Historique récent</h3>
+                <div id="history-feed" style="margin-bottom: 24px;"></div>
             </div>
 
-            <div id="focus-content" style="display: none;">
-                <div class="active-task-banner" id="active-banner">
-                    <h3>Focus Actuel</h3>
-                    <h2 id="active-task-title">Nom de la tâche</h2>
-                    <div class="live-timer" id="live-timer">00:00</div>
+            <div class="page-view" id="page-settings">
+                <div style="text-align: center; margin-bottom: 32px; padding-top: 24px;">
+                    <div style="width: 80px; height: 80px; background: var(--sys-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px auto; font-weight: 700;">
+                        <span id="profile-initial">F</span>
+                    </div>
+                    <h2 style="margin-bottom: 4px;">FlowDeck</h2>
+                    <p style="color: var(--sys-subtext); font-size: 15px;">Édition TDAH</p>
                 </div>
 
-                <h3>Journal Rapide (Distrait ?)</h3>
-                <div class="pill-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;">
-                    <div class="pill-btn log-distraction" data-val="Ennui">🥱 Ennui</div>
-                    <div class="pill-btn log-distraction" data-val="Anxiété">😰 Anxiété</div>
-                    <div class="pill-btn log-distraction" data-val="Idée">💡 Idée</div>
+                <h3>Réglages Système</h3>
+                <div style="background: var(--sys-surface); border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
+                    <button class="btn-ghost" id="reset-device-btn" style="color: var(--sys-blue); border-bottom: 1px solid var(--sys-border); text-align: left; padding: 16px 20px; font-weight: 400;">Réinitialiser l'écran (Calibration)</button>
+                    <button class="btn-ghost" id="reset-btn" style="color: var(--sys-red); text-align: left; padding: 16px 20px; font-weight: 400;">Effacer toutes les données</button>
                 </div>
-                
-                <div class="journal-feed" id="journal-feed"></div>
-
-                <div style="height: 12px;"></div>
-                <button class="btn-primary btn-block btn-success" id="complete-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Terminer la tâche (+50)
-                </button>
-                <button class="btn-ghost" id="abandon-btn">Abandonner</button>
             </div>
             
-        </div>
-
-        <div id="view-analytics" class="view">
-            <div style="display:flex; gap: 12px; margin-bottom: 24px;">
-                <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Score total</span><strong id="stats-score" style="color: var(--sys-orange);">0</strong></div>
-                <div class="stat-box"><span style="font-size: 13px; color: var(--sys-subtext);">Tâches finies</span><strong id="stats-completed">0</strong></div>
-            </div>
-            
-            <h3>Modèles de Stress</h3>
-            <div id="pattern-feed" style="margin-bottom: 24px; color: var(--sys-subtext); font-size: 14px;"></div>
-
-            <h3>Historique récent</h3>
-            <div id="history-feed" style="margin-bottom: 24px;"></div>
-        </div>
-
-        <div id="view-settings" class="view">
-            <div style="text-align: center; margin-bottom: 32px; padding-top: 24px;">
-                <div style="width: 80px; height: 80px; background: var(--sys-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px auto; font-weight: 700;">
-                    <span id="profile-initial">F</span>
-                </div>
-                <h2 style="margin-bottom: 4px;">FlowDeck</h2>
-                <p style="color: var(--sys-subtext); font-size: 15px;">Édition TDAH</p>
-            </div>
-
-            <h3>Réglages Système</h3>
-            <div style="background: var(--sys-surface); border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
-                <button class="btn-ghost" id="reset-device-btn" style="color: var(--sys-blue); border-bottom: 1px solid var(--sys-border); text-align: left; padding: 16px 20px; font-weight: 400;">Réinitialiser l'écran (Calibration)</button>
-                <button class="btn-ghost" id="reset-btn" style="color: var(--sys-red); text-align: left; padding: 16px 20px; font-weight: 400;">Effacer toutes les données</button>
-            </div>
         </div>
 
         <div class="sheet-overlay" id="sheet-overlay"></div>
@@ -375,37 +330,10 @@
         </div>
     </div>
 
-    <div class="fab-overlay" id="fab-overlay"></div>
-    <div class="fab-container" id="fab-nav">
-        
-        <div class="fab-menu">
-            <button class="fab-item" data-target="view-settings">
-                <div class="fab-item-label">Profil</div>
-                <div class="fab-item-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
-            </button>
-            
-            <button class="fab-item" data-target="view-analytics">
-                <div class="fab-item-label">Analytics</div>
-                <div class="fab-item-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                </div>
-            </button>
-
-            <button class="fab-item active" data-target="view-main">
-                <div class="fab-item-label">Accueil / Focus</div>
-                <div class="fab-item-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-                </div>
-            </button>
-        </div>
-
-        <button class="fab-main" id="fab-main-btn">
-            <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-
+    <div class="bottom-nav-area" id="bottom-nav">
+        <div class="dot-indicator active" data-index="0"></div>
+        <div class="dot-indicator" data-index="1"></div>
+        <div class="dot-indicator" data-index="2"></div>
     </div>
 
 </div>
@@ -415,13 +343,13 @@
         state: { tasks: [], activeTask: null, history: [], points: 0, deviceSetup: false },
         timerInterval: null, pendingTaskId: null,
         preflightData: { stress: 0, emo: '', reason: '' },
+        currentPageIndex: 0, // 0: Main, 1: Analytics, 2: Settings
 
         els: {
-            views: document.querySelectorAll('.view'),
-            
-            // Nouveau FAB Menu
-            fabNav: document.getElementById('fab-nav'), fabMainBtn: document.getElementById('fab-main-btn'), 
-            fabItems: document.querySelectorAll('.fab-item'), fabOverlay: document.getElementById('fab-overlay'),
+            // Sliding Elements
+            mainViews: document.getElementById('main-views'),
+            bottomNav: document.getElementById('bottom-nav'),
+            dots: document.querySelectorAll('.dot-indicator'),
 
             headerDate: document.getElementById('header-date'), scoreDisplay: document.getElementById('score-display'), pointsBadge: document.getElementById('points-badge'),
             
@@ -446,7 +374,6 @@
 
         launchSetup() {
             document.body.classList.add('setup-mode');
-            this.els.views.forEach(v => v.classList.remove('active')); 
             document.getElementById('view-setup').classList.add('active');
             
             const w = window.innerWidth; const h = window.innerHeight;
@@ -461,14 +388,14 @@
 
             document.getElementById('confirm-setup-btn').onclick = () => {
                 this.vibrate(50); this.state.deviceSetup = true; this.saveState();
-                document.body.classList.remove('setup-mode'); this.bootApp();
+                document.body.classList.remove('setup-mode'); 
+                document.getElementById('view-setup').classList.remove('active');
+                this.bootApp();
             };
         },
 
         bootApp() {
-            this.renderMainView();
-            const mainTab = document.querySelector('.fab-item[data-target="view-main"]');
-            this.switchTab('view-main', mainTab);
+            this.goToPage(0); // Démarrage sur Main (Inbox/Focus)
         },
 
         vibrate(ms = 50) { if (navigator.vibrate) navigator.vibrate(ms); },
@@ -476,16 +403,39 @@
         saveState() { localStorage.setItem('flowdeck_state', JSON.stringify(this.state)); this.updateUI(); },
 
         bindEvents() {
-            // FAB Logic
-            this.els.fabMainBtn.addEventListener('click', () => this.toggleFab());
-            this.els.fabOverlay.addEventListener('click', () => this.closeFab());
+            // ---- GESTION DU SWIPE NAVIGATION (Autour des points) ----
+            let navStartX = 0;
+            let navCurrentX = 0;
+            
+            this.els.bottomNav.addEventListener('touchstart', e => {
+                navStartX = e.touches[0].clientX;
+                navCurrentX = navStartX;
+            }, {passive: true});
 
-            this.els.fabItems.forEach(tab => tab.addEventListener('click', () => { 
-                this.vibrate(20); this.switchTab(tab.dataset.target, tab); 
-                this.closeFab();
-            }));
+            this.els.bottomNav.addEventListener('touchmove', e => {
+                navCurrentX = e.touches[0].clientX;
+            }, {passive: true});
 
-            // Tasks Logic
+            this.els.bottomNav.addEventListener('touchend', e => {
+                let diff = navStartX - navCurrentX;
+                if (diff > 40) {
+                    // Swipe Vers la Gauche (Page Suivante)
+                    this.goToPage(this.currentPageIndex + 1);
+                } else if (diff < -40) {
+                    // Swipe Vers la Droite (Page Précédente)
+                    this.goToPage(this.currentPageIndex - 1);
+                }
+            });
+
+            // Cliquer directement sur un point
+            this.els.dots.forEach((dot) => {
+                dot.addEventListener('click', (e) => {
+                    this.vibrate(15);
+                    this.goToPage(parseInt(e.target.dataset.index));
+                });
+            });
+            // ---------------------------------------------------------
+
             this.els.addTaskBtn.addEventListener('click', () => this.addTask());
             this.els.taskInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.addTask(); });
             
@@ -544,25 +494,22 @@
             });
         },
 
-        /* FAB Toggle */
-        toggleFab() {
-            this.vibrate(15);
-            this.els.fabNav.classList.toggle('open');
-            this.els.fabOverlay.classList.toggle('active');
-        },
-        closeFab() {
-            this.els.fabNav.classList.remove('open');
-            this.els.fabOverlay.classList.remove('active');
-        },
+        /* Logique du Conteneur Coulissant */
+        goToPage(index) {
+            if (index < 0 || index > 2) return; // Sécurité limites
+            
+            this.currentPageIndex = index;
+            // Translater le conteneur de -33.33% par index
+            this.els.mainViews.style.transform = `translateX(-${index * 33.3333}%)`;
+            
+            // Mettre à jour les points visuellement
+            this.els.dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
 
-        switchTab(targetId, tabEl) {
-            this.els.fabItems.forEach(t => t.classList.remove('active')); 
-            if(tabEl) tabEl.classList.add('active');
-            
-            this.els.views.forEach(v => v.classList.remove('active')); document.getElementById(targetId).classList.add('active');
-            
-            if(targetId === 'view-main') this.renderMainView();
-            if(targetId === 'view-analytics') this.renderAnalytics();
+            // Re-render le contenu selon la page
+            if(index === 0) this.renderMainView();
+            if(index === 1) this.renderAnalytics();
         },
 
         updateUI() { this.els.scoreDisplay.textContent = this.state.points; },
@@ -744,7 +691,7 @@
             };
             
             this.closeSheet(); this.awardPoints(10); this.saveState(); 
-            this.switchTab('view-main', document.querySelector('.fab-item[data-target="view-main"]'));
+            this.goToPage(0); // S'assurer de revenir sur Main pour le Focus
         },
 
         /* WORK */
