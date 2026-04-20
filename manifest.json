@@ -1,0 +1,17 @@
+{
+  "name": "FlowDeck Pro",
+  "short_name": "FlowDeck",
+  "description": "Triage et Focus pour TDAH",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#F2F2F7",
+  "theme_color": "#007AFF",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2098/2098402.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
